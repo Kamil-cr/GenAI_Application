@@ -27,7 +27,7 @@ async def lifespan():
     create_db_and_tables()
     yield
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 def db_session():
     with Session(engine) as session:    
