@@ -1,4 +1,4 @@
-[tool.poetry]
+poetry update[tool.poetry]
 name = "todoapp"
 version = "0.1.0"
 description = ""

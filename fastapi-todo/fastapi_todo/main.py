@@ -8,7 +8,7 @@ from fastapi_todo import settings
 class Todo(SQLModel, table=True):
     __tablename__: str = "todo"
     id: Optional[int] = Field(primary_key=True, index=True)
-    todo: str = Column(String, index=True)
+    todo:str = Column(String, index=True)
 
 connection_string = str(settings.DATABASE_URL).replace(
     "postgresql", "postgresql+psycopg"

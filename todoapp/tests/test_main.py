@@ -2,9 +2,7 @@ from fastapi.testclient import TestClient
 from todoapp.main import app, Todo
 from sqlmodel import Session, create_engine, SQLModel, select
 from todoapp.main import db_session
-from dotenv import get_key
-
-TEST_DATABASE_URL = get_key(".env", "TEST_DATABASE_URL")
+from todoapp import settings
 
 def test_read_main():
     client = TestClient(app=app)
@@ -14,7 +12,10 @@ def test_read_main():
 
 def test_read_todos():
     client = TestClient(app=app)
-    connection_string = str(TEST_DATABASE_URL)
+    
+    connection_string = str(settings.TEST_DATABASE_URL).replace(
+    "postgresql", "postgresql+psycopg"
+)
     engine = create_engine(
         connection_string, connect_args={"sslmode": "require"}, pool_recycle=300)
 
@@ -33,7 +34,9 @@ def test_read_todos():
 
 def test_post_todos():
     client = TestClient(app=app)
-    connection_string = str(TEST_DATABASE_URL)
+    connection_string = str(settings.TEST_DATABASE_URL).replace(
+    "postgresql", "postgresql+psycopg"
+)
     engine = create_engine(
         connection_string, connect_args={"sslmode": "require"}, pool_recycle=300)
 
@@ -52,7 +55,9 @@ def test_post_todos():
 
 def test_patch_todos():
     client = TestClient(app=app)
-    connection_string = str(TEST_DATABASE_URL)
+    connection_string = str(settings.TEST_DATABASE_URL).replace(
+    "postgresql", "postgresql+psycopg"
+)
     engine = create_engine(
         connection_string, connect_args={"sslmode": "require"}, pool_recycle=300)
 
@@ -70,7 +75,9 @@ def test_patch_todos():
 
 def test_delete_todos():
     client = TestClient(app=app)
-    connection_string = str(TEST_DATABASE_URL)
+    connection_string = str(settings.TEST_DATABASE_URL).replace(
+    "postgresql", "postgresql+psycopg"
+)
     engine = create_engine(
         connection_string, connect_args={"sslmode": "require"}, pool_recycle=300)
 
