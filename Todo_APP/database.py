@@ -2,8 +2,9 @@ from sqlalchemy import create_engine, Column, Integer, String, URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
+from dotenv import get_key
 
-SQLALCHEMY_DATABASE_URL = "postgresql://kamilzafar54:0ubRWJhPZt3X@ep-silent-dust-a5r01rvj.us-east-2.aws.neon.tech/testdb?sslmode=require"
+SQLALCHEMY_DATABASE_URL:str = str(get_key(".env", "DATABASE_URL"))
 
 # Create a database file
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
