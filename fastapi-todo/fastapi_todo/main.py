@@ -1,14 +1,13 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
-from sqlmodel import Session, create_engine, SQLModel, Field, Column, String
+from sqlmodel import Session, create_engine, SQLModel, Field
 from typing import Annotated, Optional
 from utils import curd
 from fastapi_todo import settings
 
 class Todo(SQLModel, table=True):
-    __tablename__: str = "todo"
     id: Optional[int] = Field(primary_key=True, index=True)
-    todo:str = Column(String, index=True)
+    todo: str = Field(index=True)
 
 connection_string = str(settings.DATABASE_URL).replace(
     "postgresql", "postgresql+psycopg"
@@ -22,12 +21,12 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 @asynccontextmanager
-async def lifespan():
+async def lifespan(app: FastAPI):
     print("Creating tables..")
     create_db_and_tables()
     yield
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, title="FastAPI Todo", version="0.1")
 
 def db_session():
     with Session(engine) as session:    
