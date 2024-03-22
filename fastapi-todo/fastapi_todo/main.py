@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from sqlmodel import Session, create_engine, SQLModel, Field
 from typing import Annotated, Optional
-from utils import curd
+from utils import crud
 from fastapi_todo import settings
 
 class Todo(SQLModel, table=True):
@@ -38,17 +38,17 @@ async def read_root():
 
 @app.get("/todos", response_model=list[Todo])
 def read_todos(session: Annotated[Session, Depends(db_session)]):
-        todos = curd.read_todos(session)
+        todos = crud.read_todos(session)
         return todos
 
 @app.post("/todos", response_model=Todo)
 def create_todos(todo: str, session: Annotated[Session, Depends(db_session)]):
-    return curd.create_todos(todo, session)
+    return crud.create_todos(todo, session)
 
 @app.delete("/todos", response_model=dict)
 def delete_todos(id: int, session: Annotated[Session, Depends(db_session)]):
-    return curd.delete_todos(id, session)
+    return crud.delete_todos(id, session)
 
 @app.patch("/todos", response_model=Todo)
 def update_todos(id: int, update_todo: str, session: Annotated[Session, Depends(db_session)]):
-    return curd.update_todos(id, update_todo, session)
+    return crud.update_todos(id, update_todo, session)
