@@ -2,12 +2,11 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from app.api.utils.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_MINUTES, JWT_REFRESH_SECRET_KEY
-from app.api.utils.models import User
+from app.api.utils.models import User, UserCreate
 from datetime import datetime, timedelta, timezone
 from sqlmodel import Session, select
 from fastapi import HTTPException, status
 from pydantic import EmailStr
-from app.api.utils.validation import UserCreate
 from uuid import uuid4
 from typing import Union, Any
 
@@ -27,22 +26,22 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def get_user_by_username(db:Session,user_name:str):
-    if user_name is None:
+def get_user_by_username(db:Session,username:str):
+    if username is None:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,headers={"WWW-Authenticate": 'Bearer'},detail={"error": "invalid_token", "error_description": "The access token expired"})
 
-    user = db.exec(select(User).filter(User.username == user_name)).first()
+    user = db.exec(select(User).filter(User.username == username)).first()
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User not found")
     return user
 
-def get_user_by_id(db: Session, user_id: int):
-    if user_id is None:
+def get_user_by_id(db: Session, userid: int):
+    if userid is None:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              headers={"WWW-Authenticate": 'Bearer'},
                              detail={"error": "invalid_token", "error_description": "The access token expired"})
-    user = db.get(User, user_id)
+    user = db.get(User, userid)
 
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User not found")
@@ -63,7 +62,7 @@ def authenticate_user(db, username: str, password: str):
     user = get_user_by_username(db, username)
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user.password):
         return False
     return user
 
@@ -96,9 +95,9 @@ def signup_user(user: UserCreate, db: Session):
     if search_user_by_username:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Try Different username")
     
-    hashed_password = get_password_hash(user.password)
+    hashed_password = get_password_hash(user.hashed_password)
 
-    new_user = User(id=uuid4(), username=user.username, email=user.email, hashed_password=hashed_password)
+    new_user = User(id = uuid4(),username=user.username, email=user.email, hashed_password=hashed_password)
 
     db.add(new_user)
     db.commit()

@@ -1,6 +1,7 @@
 import React from 'react'
 import { FaShoppingCart } from "react-icons/fa";
 import Link from 'next/link';
+import Search from './Search';
 
 const Navbar = () => {
   return (
@@ -10,7 +11,9 @@ const Navbar = () => {
             <Link className='text-md py-3 px-3 rounded-md transition-all text-[#EDEDED] hover:bg-[#1F1F1F] relative' href={`/`}>Home</Link>
           </li>
         </ul>
-        <input type='text' className='py-2 hidden md:flex mx-5 px-6 w-1/2 bg-inherit border border-zinc-800 rounded-lg' placeholder='Search Product...' />
+        <div className='w-1/2 mx-5'>
+          <Search />
+        </div>
         <ul className='flex space-x-3 justify-center'>
           <li className='flex px-3 items-center justify-center '>
             <Link className='text-lg py-3 px-3 rounded-md transition-all text-[#EDEDED] hover:bg-[#1F1F1F] relative' href={`/cart`}><FaShoppingCart /></Link>

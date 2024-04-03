@@ -1,14 +1,14 @@
+from uuid import uuid4
 from fastapi import FastAPI, Depends, HTTPException, status, Body, Cookie
 from sqlmodel import select, Session
-from typing import List, Annotated, Optional
+from typing import List, Annotated, Optional, Union
 from app.api.utils.settings import REFRESH_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from datetime import timedelta
 from app.api.utils.services import get_user_by_username, verify_password, create_access_token, signup_user
-from app.api.utils.models import Product, TokenData, Token, Cart, Order, User
+from app.api.utils.models import Product, TokenData, Token, Order, User, UserCreate, Userlogin
 from app.api.utils.db import lifespan, db_session
-from app.api.utils.validation import UserCreate, Cartcreate
 from jose import jwt, JWTError
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -23,7 +23,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 app = FastAPI(title="E-commerce API", version="0.1.0", lifespan=lifespan)
 
 origins = [
-       "http://localhost:3000",  # Add your Next.js app URL here
+    "http://localhost:3000",  # Add your Next.js app URL here
+    "http://localhost:3001",  # Add your FastAPI app URL here
 ]
 
 app.add_middleware(
@@ -59,7 +60,8 @@ async def root():
 
 @app.post("/api/oauth/login", response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(db_session)]) -> Token:
-    user: User = get_user_by_username(db, form_data.username)
+    user: Userlogin = get_user_by_username(db, form_data.username)
+    # user = user.model_validate(User)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -80,8 +82,8 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     refresh_token = create_access_token(
         data={"sub": user.username}, expires_delta=refresh_token_expires
     )
-    Cookie(refresh_token, token=refresh_token, httponly=True, max_age=60*60*24*7, expires=60*60*24*7, path="/api/oauth/login")
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    Cookie(refresh_token, token=refresh_token, httponly=True, expires=60*60*24*7, path="/api/oauth/login")
+    return {"access_token": access_token, "refresh_token": refresh_token, "expires_in": access_token_expires+refresh_token_expires, "token_type": "bearer"}
 
 @app.post("/api/signup", response_model=User)
 async def signup(db: Annotated[Session, Depends(db_session)], user: UserCreate = Body()):
@@ -91,24 +93,33 @@ async def signup(db: Annotated[Session, Depends(db_session)], user: UserCreate =
         raise HTTPException(status_code=400,detail=str(e))
 
 @app.get("/api/products", response_model=List[Product])
-def get_products(session: Annotated[Session, Depends(db_session)]) -> List[Product]:
-    products = session.exec(select(Product)).all()
+def get_products(session: Annotated[Session, Depends(db_session)], query: Optional[str] = None) -> List[Product]:
+    if query:
+        products = session.exec(select(Product).where(Product.slug.contains(query))).all()
+    else:
+        products = session.exec(select(Product)).all()
     return products
 
-@app.get("/cart", response_model=List[Cart])
-def get_cart(session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> List[Cart]:
-    user = session.exec(select(User).filter(User.username == user.username)).first()
-    cart = session.exec(select(Cart).filter(Cart.user_id == user.id)).all()
-    return cart
+@app.get("/api/products/{product_slug}", response_model=Product)
+def get_product(product_slug: str, session: Annotated[Session, Depends(db_session)]) -> Product:
+    product = session.exec(select(Product).filter(Product.slug == product_slug)).first()
+    return product
 
-@app.post("/cart", response_model=Cart)
-def post_cart(cart: Cartcreate, session: Annotated[Session, Depends(db_session)], person: Annotated[User, Depends(get_current_user)]):
-    user = session.exec(select(User)).where(User.username == person.username).first()
-    cart = Cart(**cart.model_dump(), user_id=user.id)
-    session.add(cart)
-    session.commit()
-    session.refresh()
-    return {"message": "Successful"}
+# @app.get("/cart", response_model=List[Cart])
+# def get_cart(session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> List[Cart]:
+#     user = session.exec(select(User).filter(User.username == user.username)).first()
+#     cart = session.exec(select(Cart).filter(Cart.user_id == user.id)).all()
+#     return cart
+
+
+# @app.post("/cart", response_model=Cart)
+# def post_cart(cart: Cartcreate, session: Annotated[Session, Depends(db_session)], person: Annotated[User, Depends(get_current_user)]):
+#     user = session.exec(select(User)).where(User.username == person.username).first()
+#     cart = Cart(**cart.model_dump(), user_id=user.id)
+#     session.add(cart)
+#     session.commit()
+#     session.refresh()
+#     return {"message": "Successful"}
 
 @app.post("/order", response_model=Order)
 def post_order(order: Order, session: Annotated[Session, Depends(db_session)]):

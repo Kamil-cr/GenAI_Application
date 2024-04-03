@@ -1,11 +1,9 @@
 "use client";
-import * as z from "zod";
-import { LoginSchema } from "@/schemas";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { login } from "@/actions/Login";
+import { sign } from "@/actions/Login";
 import { mySetCookie } from "@/lib/auth";
 
 const Signin = () => {
@@ -16,35 +14,11 @@ const Signin = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const login = async () => {
-        // "use server"
-        const formData = new URLSearchParams();
-      
-        formData.append('username', username);
-        formData.append('password', password);
-        try {
-            const res = await fetch(`http://localhost:3000/api/oauth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: formData
-            })
-      
-            const data = await res.json()
-            if (data && data.access_token) {
-                await mySetCookie(data.access_token)
-                router.refresh()
-                router.push("/")
-                // setLoginError("")
-            }
-            console.log(data, "datajson");
-            // if (res.status == 401) {
-            //     setLoginError(data.detail)
-            // }
-        }
-        catch(error) {
-            console.log(error, "error");
-            console.log("error is error");
+        const data = await sign(username, password);
+        if (data && data.access_token && data.refresh_token) {
+            await mySetCookie(data.access_token, data.refresh_token)
+            router.refresh()
+            router.push("/")
         }
     }
     return (

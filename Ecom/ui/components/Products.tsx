@@ -1,14 +1,26 @@
-import { productfetch} from "@/actions/product-fetch"
 import Link from "next/link"
 import Image from "next/image"
-import { IProducts } from "@/app/products/[slug]/page"
+import { products } from "@/actions/products"
 
-const Products = async () => {
-    const products: IProducts[] = await productfetch()
+interface Iprops {
+    search?: string
+}
+
+export interface IProducts {
+    name: string,
+    price: number,
+    image1: string,
+    image2: string,
+    description: string,
+    slug: string
+}
+
+const Products = async ({search}: Iprops) => {    
+    const data: IProducts[] = await products(search)
     return (
       <div className='lg:mx-20 md:mx-10 grid lg:grid-cols-3 xl:grid-cols-4 md:grid-cols-2 w-max grid-cols-1 md:space-y-6 space-y-9 space-x-5 md:space-x-10 '>
-        {products.map((product, index) => {
-            const images = [product.image_1, product.image_2]
+        {data.map((product, index) => {
+            const images = [product.image1, product.image2]
             return (
                 <div key={index} className='flex md:mt-6 md:ml-10 mt-9 ml-6 justify-between border border-solid border-zinc-800 rounded-md flex-col'>
                     <Link href={`/products/${product.slug}`}>

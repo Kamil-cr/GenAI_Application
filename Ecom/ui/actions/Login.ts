@@ -2,7 +2,7 @@
 import { mySetCookie } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 
-export const login = async (username: string, password:string) => {
+export const sign = async (username: string, password:string) => {
     const formData = new URLSearchParams();
     formData.append('username', username);
     formData.append('password', password);
@@ -16,16 +16,10 @@ export const login = async (username: string, password:string) => {
       })
 
       const data = await res.json()
-    //   if (data && data.access_token) {
-    //       await mySetCookie(data.access_token)
-    //       router.refresh()
-    //       router.push("/")
-    //     //   setLoginError("")
-    //   }
-      console.log(data, "datajson");
-    //   if (res.status == 401) {
-    //       setLoginError(data.detail)
-    //   }
+      if (data && data.access_token && data.refresh_token) {
+        await mySetCookie(data.access_token, data.refresh_token)
+      }
+      console.log(data);
       return data
   }
   catch (error) {

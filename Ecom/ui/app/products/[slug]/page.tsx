@@ -9,7 +9,8 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
-import { productfetch } from '@/actions/product-fetch'
+import { getProducts } from '@/actions/getProduct'
+import { IProducts } from '@/components/Products'
 
 interface IPage{
     params : {
@@ -17,25 +18,12 @@ interface IPage{
     }
 }
 
-export interface IProducts {
-    name: string,
-    price: number,
-    image_1: string,
-    image_2: string,
-    description: string,
-    slug: string
-}
-
 const page = async ({params}: IPage) => {
-    const products: IProducts[] = await productfetch()
+    const product: IProducts = await getProducts(params.slug)
+    const images = [product.image1, product.image2]
   return (
     <div className='mt-14 mb-10'>
-    {
-        products.map((product, index) => {
-            const images = [product.image_1, product.image_2]
-            if(product.slug == params.slug){
-        return(
-        <div key={index} className='grid lg:grid-cols-2 gap-8 mx-10 shadow-lg rounded-lg'>
+        <div className='grid lg:grid-cols-2 gap-8 mx-10 shadow-lg rounded-lg'>
             <div className='flex justify-center space-x-1 lg:col-span-1'>
                 {images.map((img, index) => {
                     return(
@@ -99,10 +87,6 @@ const page = async ({params}: IPage) => {
             </Accordion>
             </div>
         </div>
-        )
-        }
-    }
-)}
     </div>
   )
 }

@@ -1,23 +1,63 @@
+"use server";
 import { getCookies, setCookie, deleteCookie, getCookie, hasCookie } from 'cookies-next';
 
 export const myGetCookie = async () => {
     return getCookies()
 }
 
-export const mySetCookie = async (token: string) => {
+export const mySetCookie = async (token: string, refresh_token: string) => {
     const now = new Date();
     const expirationTime = new Date(now.getTime() + 60 * 60 * 1000)
     if (hasCookie("access_token")) {
         console.log("token exist");
     } else {
         setCookie("access_token", token, { expires: expirationTime })
-        // setCookie("refresh_token", refresh_token, { expires: expirationTime })
+        setCookie("refresh_token", refresh_token, { expires: expirationTime })
     }
 }
 
-export const myDelCookie = async () => {
-    if (hasCookie("access_token") || hasCookie("refresh_token")) {
-        deleteCookie("access_token")
-        deleteCookie("refresh_token")
-    }
+// export const myDelCookie = async () => {
+//     if (hasCookie("access_token") || hasCookie("refresh_token")) {
+//         deleteCookie("access_token")
+//         deleteCookie("refresh_token")
+//     }
+// }
+import { cookies } from "next/headers";
+
+export async function auth() {
+  // Check if cookies exist
+  const isCookies = cookies().has("access_token");
+
+  if (!isCookies) {
+    console.log("[auth] No cookies. Redirecting to login.");
+    return null;
+  }
+
+  const cookies_user_data = cookies().get("access_token")?.value;
+
+  if (!cookies_user_data) {
+    console.log("[auth] No user data in cookies. Redirecting to login.");
+    return null;
+  }
+
+  let user_data: UserData = JSON.parse(cookies_user_data);
+  console.log("[auth] user_data CALLED @auth");
+
+  if (!user_data.access_token) {
+    console.log("[auth] Expired Redirecting to login.");
+    return null;
+  }
+
+  return user_data;
+}
+
+export async function token() {
+    const isCookies = cookies().has("access_token");
+    const cookies_user_data = cookies().get("refresh_token");
+    return {isCookies, cookies_user_data};
+} 
+
+export async function signOut() {
+  cookies().delete("access_token");
+  console.log("[signOut] User data cookie deleted. Redirecting to login.");
 }
