@@ -1,17 +1,18 @@
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
+from app.api.utils.db import db_session
 from app.api.utils.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_MINUTES, JWT_REFRESH_SECRET_KEY
-from app.api.utils.models import User, UserCreate
+from app.api.utils.models import TokenData, User, UserCreate
 from datetime import datetime, timedelta, timezone
 from sqlmodel import Session, select
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
 from pydantic import EmailStr
 from uuid import uuid4
-from typing import Union, Any
+from typing import Annotated, Union, Any
 
 SECRET_KEY = str(SECRET_KEY)
-ALGORITHM = ALGORITHM
+ALGORITHM = str(ALGORITHM)
 ACCESS_TOKEN_EXPIRE_MINUTES = ACCESS_TOKEN_EXPIRE_MINUTES
 REFRESH_TOKEN_EXPIRE_MINUTES = REFRESH_TOKEN_EXPIRE_MINUTES
 JWT_REFRESH_SECRET_KEY = str(JWT_REFRESH_SECRET_KEY)
@@ -26,7 +27,7 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def get_user_by_username(db:Session,username:str):
+def get_user_by_username(db:Session,username:str) -> User:
     if username is None:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,headers={"WWW-Authenticate": 'Bearer'},detail={"error": "invalid_token", "error_description": "The access token expired"})
 
@@ -36,7 +37,7 @@ def get_user_by_username(db:Session,username:str):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User not found")
     return user
 
-def get_user_by_id(db: Session, userid: int):
+def get_user_by_id(db: Session, userid: int) -> User:
     if userid is None:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              headers={"WWW-Authenticate": 'Bearer'},
@@ -48,7 +49,7 @@ def get_user_by_id(db: Session, userid: int):
     
     return user
     
-def get_user_by_email(db:Session,user_email: EmailStr):
+def get_user_by_email(db:Session,user_email: EmailStr) -> User:
     if user_email is None:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,headers={"WWW-Authenticate": 'Bearer'},detail={"error": "invalid_token", "error_description": "The access token expired"})
 
@@ -58,7 +59,7 @@ def get_user_by_email(db:Session,user_email: EmailStr):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User not found")
     return user
 
-def authenticate_user(db, username: str, password: str):
+def authenticate_user(db, username: str, password: str) -> User:
     user = get_user_by_username(db, username)
     if not user:
         return False
@@ -66,14 +67,14 @@ def authenticate_user(db, username: str, password: str):
         return False
     return user
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY)
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 def create_refresh_token(data: Union[str, Any], expires_delta: int = None) -> str:
@@ -86,7 +87,7 @@ def create_refresh_token(data: Union[str, Any], expires_delta: int = None) -> st
     encoded_jwt = jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)
     return encoded_jwt
 
-def signup_user(user: UserCreate, db: Session):
+def signup_user(user: UserCreate, db: Session) -> User:
     search_user_by_email = db.exec(select(User).filter(User.email == user.email)).first()
     if search_user_by_email:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Email id already registered")
@@ -104,3 +105,22 @@ def signup_user(user: UserCreate, db: Session):
     db.refresh(new_user)
 
     return new_user
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[Session, Depends(db_session)]) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    user = get_user_by_username(db, username=token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user

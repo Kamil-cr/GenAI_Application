@@ -6,10 +6,9 @@ from app.api.utils.settings import REFRESH_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALG
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from datetime import timedelta
-from app.api.utils.services import get_user_by_username, verify_password, create_access_token, signup_user
+from app.api.utils.services import get_current_user, get_user_by_username, verify_password, create_access_token, signup_user
 from app.api.utils.models import Product, TokenData, Token, Order, User, UserCreate, Userlogin
 from app.api.utils.db import lifespan, db_session
-from jose import jwt, JWTError
 from fastapi.middleware.cors import CORSMiddleware
 
 SECRET_KEY = str(SECRET_KEY)
@@ -34,25 +33,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[Session, Depends(db_session)]):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
-    user = get_user_by_username(db, username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    return user
 
 @app.get("/")
 async def root():
@@ -90,6 +70,11 @@ async def signup(db: Annotated[Session, Depends(db_session)], user: UserCreate =
         return signup_user(user, db)
     except Exception as e:
         raise HTTPException(status_code=400,detail=str(e))
+
+@app.get("/api/users/me", response_model=User)
+async def read_users_me(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[Session, Depends(db_session)]) -> User:
+    user = await get_current_user(token, db)
+    return user
 
 @app.get("/api/products", response_model=List[Product])
 def get_products(session: Annotated[Session, Depends(db_session)], query: Optional[str] = None) -> List[Product]:

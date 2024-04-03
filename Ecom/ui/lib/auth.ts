@@ -1,6 +1,6 @@
 "use server";
 import { getCookies, setCookie, deleteCookie, getCookie, hasCookie } from 'cookies-next';
-
+import { cookies } from 'next/headers';
 export const myGetCookie = async () => {
     return getCookies()
 }
@@ -16,13 +16,11 @@ export const mySetCookie = async (token: string, refresh_token: string) => {
     }
 }
 
-// export const myDelCookie = async () => {
-//     if (hasCookie("access_token") || hasCookie("refresh_token")) {
-//         deleteCookie("access_token")
-//         deleteCookie("refresh_token")
-//     }
-// }
-import { cookies } from "next/headers";
+export const myDeleteCookie = () => {
+    cookies().delete("access_token") 
+    cookies().delete("refresh_token")
+    console.log("cookie deleted");
+}
 
 export async function auth() {
   // Check if cookies exist

@@ -4,9 +4,12 @@ import Link from 'next/link';
 import Search from './Search';
 import { DropdownMenuDemo } from './Card';
 import { cookies } from 'next/headers';
+import { getUser } from "@/actions/getUser"
 
-const Navbar = () => {
+const Navbar = async () => {
   const isCookies = cookies().has("access_token") || cookies().has("refresh_token");  
+  const user = await getUser()
+  const name: string = user.username
   return (
     <nav className='pointer-events-auto w-full lg:px-0 px-3.5 gap-4 xs:px-6 sm:px-12 py-6 flex items-center justify-center border-zinc-800 border-b border-solid'>
         <ul className='flex justify-between gap-2 text-sm'>
@@ -22,7 +25,7 @@ const Navbar = () => {
             <Link className='text-lg py-3 px-3 rounded-md transition-all text-[#EDEDED] hover:bg-[#1F1F1F] relative' href={`/cart`}><FaShoppingCart /></Link>
           </li>
           {isCookies ? 
-          <DropdownMenuDemo /> :
+          <DropdownMenuDemo name={name}/> :
           <li className='flex px-3 items-center justify-center '>
             <Link className='text-md py-3 px-3 rounded-md transition-all text-[#EDEDED] hover:bg-[#1F1F1F] relative' href={`/login`}>Login</Link>
           </li>}
