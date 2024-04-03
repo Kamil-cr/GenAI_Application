@@ -1,7 +1,7 @@
 from uuid import uuid4
-from fastapi import FastAPI, Depends, HTTPException, status, Body, Cookie
+from fastapi import FastAPI, Depends, HTTPException, status, Body
 from sqlmodel import select, Session
-from typing import List, Annotated, Optional, Union
+from typing import List, Annotated, Optional
 from app.api.utils.settings import REFRESH_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
@@ -82,7 +82,6 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     refresh_token = create_access_token(
         data={"sub": user.username}, expires_delta=refresh_token_expires
     )
-    Cookie(refresh_token, token=refresh_token, httponly=True, expires=60*60*24*7, path="/api/oauth/login")
     return {"access_token": access_token, "refresh_token": refresh_token, "expires_in": access_token_expires+refresh_token_expires, "token_type": "bearer"}
 
 @app.post("/api/signup", response_model=User)

@@ -1,5 +1,5 @@
 import Products from "@/components/Products";
-import {token, myGetCookie} from "@/lib/auth";
+import { cookies } from "next/headers";
 
 interface Props {
   searchParams: {
@@ -7,15 +7,13 @@ interface Props {
   }
 }
 
-export default async function Home({searchParams}: Props) {  
-  const pa = await token()
-  const fa = await myGetCookie()
-  console.log(pa, "data");
-  console.log(fa, "data");
+export default async function Home({searchParams}: Props) {    
+  const isCookies = cookies().has("access_token");
+  console.log(isCookies, "isCookies");
   
   return (
     <main className="flex justify-center">
       <Products search={searchParams.search}/>
     </main>
-  );
-}
+  );}
+

@@ -1,6 +1,7 @@
 "use server"
 import { mySetCookie } from "@/lib/auth"
 import { useRouter } from "next/navigation"
+import { cookies } from "next/headers"
 
 export const sign = async (username: string, password:string) => {
     const formData = new URLSearchParams();
@@ -17,9 +18,21 @@ export const sign = async (username: string, password:string) => {
 
       const data = await res.json()
       if (data && data.access_token && data.refresh_token) {
-        await mySetCookie(data.access_token, data.refresh_token)
+        cookies().set({
+            name: 'access_token',
+            value: data.access_token,
+            httpOnly: true,
+            path: '/',
+            expires: new Date(Date.now() + 60 * 60 * 1000)
+          })
+            cookies().set({
+                name: 'refresh_token',
+                value: data.refresh_token,
+                httpOnly: true,
+                path: '/',
+                expires: new Date(Date.now() + 60 * 60 * 1000 * 24 * 7)
+            })
       }
-      console.log(data);
       return data
   }
   catch (error) {

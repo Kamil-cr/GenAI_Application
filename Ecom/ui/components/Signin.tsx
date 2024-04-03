@@ -16,7 +16,7 @@ const Signin = () => {
     const login = async () => {
         const data = await sign(username, password);
         if (data && data.access_token && data.refresh_token) {
-            await mySetCookie(data.access_token, data.refresh_token)
+            // await mySetCookie(data.access_token, data.refresh_token)
             router.refresh()
             router.push("/")
         }
