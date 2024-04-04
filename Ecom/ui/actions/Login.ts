@@ -3,7 +3,7 @@ import { mySetCookie } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { cookies } from "next/headers"
 
-export const sign = async (username: string, password:string) => {
+export const loginUser = async (username: string, password:string) => {
     const formData = new URLSearchParams();
     formData.append('username', username);
     formData.append('password', password);

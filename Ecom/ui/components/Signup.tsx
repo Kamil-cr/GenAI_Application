@@ -2,44 +2,23 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
-// import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
+import { registerUser } from "@/actions/registerUser";
+import { useRouter } from "next/navigation";
 
 const Signup = () => {
     const labelStyles = "w-full text-sm";
     const [error, setError] = useState();
     const [showPassword, setShowPassword] = useState(false);
-    // const { data: session } = useSession();
-
-    // useEffect(() => {
-    //     if (session?.user) {
-    //         window.location.reload();
-    //     }
-    // }, [session]);
+    const [username, setUserName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const router = useRouter();
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        try {
-            const formData = new FormData(event.currentTarget);
-            const signupResponse = await axios.post(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/signup`, {
-                email: formData.get("email"),
-                password: formData.get("password"),
-                name: formData.get("name"),
-                phone: formData.get("phone"),
-            });
-
-            // await signIn("credentials", {
-            //     email: signupResponse.data.email,
-            //     password: formData.get("password"),
-            //     redirect: false,
-            // });
-        } catch (error) {
-            console.log(error);
-            if (error instanceof AxiosError) {
-                const errorMessage = error.response?.data.message;
-                setError(errorMessage);
-            }
-        }
+        registerUser(username, email, password)
+        router.push("/login")
     };
 
     return (
@@ -66,12 +45,13 @@ const Signup = () => {
                 </div>}
                 <h1 className="w-full mb-5 text-2xl font-bold">Signup</h1>
 
-                <label className={labelStyles}>Fullname:</label>
+                <label className={labelStyles}>Username:</label>
                 <input
                     type="text"
-                    placeholder="Fullname"
+                    placeholder="Username"
                     className="w-full h-8 border text-[#A1A1A1] border-solid border-[#2E2E2E] bg-black py-1 px-2.5 rounded text-13"
-                    name="name"
+                    name="username"
+                    onChange={(e) => setUserName(e.target.value)}
                 />
 
                 <label className={labelStyles}>Email:</label>
@@ -80,6 +60,7 @@ const Signup = () => {
                     placeholder="Email"
                     className="w-full h-8 text-[#A1A1A1] border border-solid border-[#2E2E2E] bg-black py-1 px-2.5 rounded text-13"
                     name="email"
+                    onChange={(e) => setEmail(e.target.value)}
                 />
 
                 <label className={labelStyles}>Password:</label>
@@ -89,6 +70,7 @@ const Signup = () => {
                         placeholder="Password"
                         className="w-full h-8 text-[#A1A1A1] border border-solid border-[#2E2E2E] bg-black py-1 px-2.5 rounded-l  text-13"
                         name="password"
+                        onChange={(e) => setPassword(e.target.value)}
                     />
                     <button
                         className="flex items-center text-[#A1A1A1] justify-center w-2/12 transition-all duration-150 border-[#2E2E2E] bg-black border-r border-solid rounded-r border-y ease hover:bg-[#1F1F1F]"
@@ -130,14 +112,6 @@ const Signup = () => {
                             </svg>}
                     </button>
                 </div>
-
-                <label className={labelStyles}>Phone:</label>
-                <input
-                    type="text"
-                    placeholder="Phone (not required)"
-                    className="w-full h-8 text-[#A1A1A1] border border-solid border-[#2E2E2E] py-1 px-2.5 rounded bg-black text-13"
-                    name="phone"
-                />
 
                 <button className="w-full bg-black border border-solid border-[#2E2E2E] py-1.5 mt-2.5 rounded
                     transition-all hover:bg-[#1F1F1F] hover:border-[#454545] text-13">

@@ -3,7 +3,7 @@ import { FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { sign } from "@/actions/Login";
+import { loginUser } from "@/actions/Login";
 import { mySetCookie } from "@/lib/auth";
 
 const Signin = () => {
@@ -14,7 +14,7 @@ const Signin = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const login = async () => {
-        const data = await sign(username, password);
+        const data = await loginUser(username, password);
         if (data && data.access_token && data.refresh_token) {
             // await mySetCookie(data.access_token, data.refresh_token)
             router.refresh()
