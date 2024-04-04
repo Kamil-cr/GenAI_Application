@@ -1,7 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
+import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { registerUser } from "@/actions/registerUser";
 import { useRouter } from "next/navigation";

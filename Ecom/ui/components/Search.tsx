@@ -1,7 +1,6 @@
 "use client"
-import React, { FormEvent } from 'react'
+import React from 'react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { products } from '@/actions/products'
 

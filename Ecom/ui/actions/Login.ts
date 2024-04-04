@@ -1,6 +1,4 @@
 "use server"
-import { mySetCookie } from "@/lib/auth"
-import { useRouter } from "next/navigation"
 import { cookies } from "next/headers"
 
 export const loginUser = async (username: string, password:string) => {

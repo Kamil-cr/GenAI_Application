@@ -1,5 +1,4 @@
 "use client"
-import { getUser } from "@/actions/getUser"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

@@ -4,7 +4,6 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginUser } from "@/actions/Login";
-import { mySetCookie } from "@/lib/auth";
 
 const Signin = () => {
     const router = useRouter();
@@ -16,7 +15,6 @@ const Signin = () => {
     const login = async () => {
         const data = await loginUser(username, password);
         if (data && data.access_token && data.refresh_token) {
-            // await mySetCookie(data.access_token, data.refresh_token)
             router.refresh()
             router.push("/")
         }

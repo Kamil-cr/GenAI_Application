@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from datetime import timedelta
 from app.api.utils.services import get_current_user, get_user_by_username, verify_password, create_access_token, signup_user
-from app.api.utils.models import Product, TokenData, Token, Order, User, UserCreate, Userlogin
+from app.api.utils.models import Cart, Product, TokenData, Token, Order, User, UserCreate, Userlogin
 from app.api.utils.db import lifespan, db_session
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,7 +15,7 @@ SECRET_KEY = str(SECRET_KEY)
 ALGORITHM = ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = ACCESS_TOKEN_EXPIRE_MINUTES
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/oauth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -38,7 +38,7 @@ app.add_middleware(
 async def root():
     return {"message": "Hello World"}
 
-@app.post("/api/oauth/login", response_model=Token)
+@app.post("/login", response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(db_session)]) -> Token:
     user: Userlogin = get_user_by_username(db, form_data.username)
     # user = user.model_validate(User)
@@ -89,11 +89,22 @@ def get_product(product_slug: str, session: Annotated[Session, Depends(db_sessio
     product = session.exec(select(Product).filter(Product.slug == product_slug)).first()
     return product
 
-# @app.get("/cart", response_model=List[Cart])
-# def get_cart(session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> List[Cart]:
-#     user = session.exec(select(User).filter(User.username == user.username)).first()
-#     cart = session.exec(select(Cart).filter(Cart.user_id == user.id)).all()
-#     return cart
+@app.get("/api/cart", response_model=List[Cart])
+def get_cart(session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> List[Cart]:
+    user = session.exec(select(User).filter(User.username == user.username)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    cart = session.exec(select(Cart).filter(Cart.user_id == user.id)).all()
+    return cart
+
+@app.post("/api/cart", response_model=Cart)
+def post_cart(cart: Cart, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> Cart:
+    # user = session.exec(select(User).filter(User.username == user.username)).first()
+    # cart = Cart(**cart.model_dump(), user_id=user.id)
+    session.add(cart)
+    session.commit()
+    session.refresh(cart)
+    return cart
 
 
 # @app.post("/cart", response_model=Cart)

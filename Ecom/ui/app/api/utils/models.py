@@ -42,18 +42,18 @@ class User(UserBase, table=True):
 class UserCreate(UserBase):
     email: str
 
-# class Cart(Product, table=True):
-#     id: Optional[int] = Field(primary_key=True)
-#     product_total: float
-#     product_size: str
-#     quantity: int = Field(nullable=False)
+class Cart(SQLModel, table=True):
+    id: Optional[int] = Field(primary_key=True)
+    product_id: UUID | None = Field(default=None, foreign_key="product.sku")
+    user_id: UUID | None = Field(default=None, foreign_key="user.id")
+    product_total: float
+    product_size: str
+    quantity: int = Field(nullable=False)
 
 class Order(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True)
-    user_id: int
+    cart_id: int | None = Field(default=None, foreign_key="cart.id")
     ordered_at: datetime
-    product_id: int
-    quantity: int
     total: float
 
 
