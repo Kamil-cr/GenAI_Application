@@ -5,6 +5,7 @@ import Search from './Search';
 import { DropdownMenuDemo } from './Card';
 import { cookies } from 'next/headers';
 import { getUser } from "@/actions/getUser"
+import { DialogDemo } from './DialogDemo';
 
 const Navbar = async () => {
   const isCookies = cookies().has("access_token") || cookies().has("refresh_token");  
@@ -29,6 +30,7 @@ const Navbar = async () => {
           <li className='flex px-3 items-center justify-center '>
             <Link className='text-md py-3 px-3 rounded-md transition-all text-[#EDEDED] hover:bg-[#1F1F1F] relative' href={`/login`}>Login</Link>
           </li>}
+          <DialogDemo />
         </ul>
     </nav>
   )
