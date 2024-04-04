@@ -30,8 +30,8 @@ const Navbar = async () => {
           <li className='flex px-3 items-center justify-center '>
             <Link className='text-md py-3 px-3 rounded-md transition-all text-[#EDEDED] hover:bg-[#1F1F1F] relative' href={`/login`}>Login</Link>
           </li>}
-          <DialogDemo />
         </ul>
+        <DialogDemo />
     </nav>
   )
 }

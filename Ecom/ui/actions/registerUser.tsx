@@ -2,7 +2,7 @@
 
 export const registerUser = async (username: string, email: string, password: string) => {
     try{
-    const response = await fetch("http://localhost:8000/api/signup", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/signup`, {
         method: "POST",
         headers: {
         "Content-Type": "application/json",

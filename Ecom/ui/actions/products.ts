@@ -3,7 +3,7 @@ export const products = async(search?: string) => {
 // const formData = new URLSearchParams();
 //     formData.append('search', search? search : '');
   try {
-      const res = await fetch(`http://localhost:3000/api/products${search? `?query=${search}`: ""}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products${search? `?query=${search}`: ""}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
