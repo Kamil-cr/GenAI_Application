@@ -96,18 +96,6 @@ def get_cart(session: Annotated[Session, Depends(db_session)], user: Annotated[U
 
 @app.post("/api/cart", response_model=Cart)
 def post_cart(cart: CartCreate, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> Cart:
-    # user = session.exec(select(User).where(User.username == user.username)).first()
-    # product = session.exec(select(Product).where(Product.sku == cart.product_id)).first()
-    # if not product:
-    #     raise HTTPException(status_code=404, detail="Product not found")
-    # prod_in_cart = session.exec(select(Cart).where(Cart.product_id == cart.product_id, Cart.user_id == user.id, Cart.product_size == cart.product_size)).first()
-    # if prod_in_cart:
-    #     product = update_cart(session, cart, user)
-    #     return product
-    # cart = Cart(product_id=cart.product_id, product_total=product.price*cart.quantity, product_size=cart.product_size, quantity=cart.quantity, user_id=user.id)
-    # session.add(cart)
-    # session.commit()
-    # session.refresh(cart)
     cart = create_product_cart(session, cart, user)
     return cart
 
@@ -120,16 +108,6 @@ def patch_cart(cart: CartCreate, session: Annotated[Session, Depends(db_session)
 def delete_cart(cart: CartCreate, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> dict[str, str]:
     delete_cart_product(session, cart, user)
     return {"message": "Product removed from cart"}
-
-
-# @app.post("/cart", response_model=Cart)
-# def post_cart(cart: Cartcreate, session: Annotated[Session, Depends(db_session)], person: Annotated[User, Depends(get_current_user)]):
-#     user = session.exec(select(User)).where(User.username == person.username).first()
-#     cart = Cart(**cart.model_dump(), user_id=user.id)
-#     session.add(cart)
-#     session.commit()
-#     session.refresh()
-#     return {"message": "Successful"}
 
 @app.post("/order", response_model=Order)
 def post_order(order: Order, session: Annotated[Session, Depends(db_session)]):
