@@ -44,13 +44,13 @@ class UserCreate(UserBase):
 
 class CartBase(SQLModel):
     product_id: UUID = Field(default=None, foreign_key="product.sku")
-    product_total: Optional[float]
     product_size: str
     quantity: int
 
 class Cart(CartBase, table=True):
     id: Optional[int] = Field(primary_key=True)
     user_id: UUID = Field(default=None, foreign_key="user.id")
+    product_total: Optional[float]
 
 class CartCreate(CartBase):
     pass
