@@ -34,14 +34,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@app.post("/login", response_model=Token)
+@app.post("/api/login", response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(db_session)]) -> Token:
     user: Userlogin = get_user_by_username(db, form_data.username)
-    # user = user.model_validate(User)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

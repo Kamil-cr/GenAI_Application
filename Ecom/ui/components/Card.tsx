@@ -29,14 +29,14 @@ export function DropdownMenuDemo({name}: {name: string}) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost">{name}</Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-36">
+        <DropdownMenuContent className="w-36 bg-inherit">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            {/* <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
               <span>Edit Profile</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <Link href="/orders" >
             <DropdownMenuItem>
               <CreditCard className="mr-2 h-4 w-4" />

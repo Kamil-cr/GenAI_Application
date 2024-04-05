@@ -12,13 +12,18 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
-export function DialogDemo() {
-  let [username, setUsername] = useState("user.username") 
-  let [email, setEmail] = useState("user.email")
+
+type User = {
+  name: string;
+  email: string;
+};
+
+export function DialogDemo({name, email}: User) {
+  let [username, setUsername] = useState(name) 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Edit Profile</Button>
+        <Button variant="ghost">Edit Profile</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -35,7 +40,7 @@ export function DialogDemo() {
             </Label>
             <Input
               id="name"
-              defaultValue={"user.username"}
+              defaultValue={username}
               className="col-span-3"
               onChange={(e) => setUsername(e.target.value)}
               about="username"
@@ -47,9 +52,8 @@ export function DialogDemo() {
             </Label>
             <Input
               id="email"
-              defaultValue={"user.email"}
+              defaultValue={email}
               className="col-span-3"
-              onChange={(e) => setEmail(e.target.value)}
               about="email"
               disabled
             />

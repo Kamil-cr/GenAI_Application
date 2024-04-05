@@ -1,12 +1,12 @@
 "use server"
-import { cookies } from "next/headers"
+import { mySetCookie } from "@/lib/auth";
 
 export const loginUser = async (username: string, password:string) => {
     const formData = new URLSearchParams();
     formData.append('username', username);
     formData.append('password', password);
   try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/oauth/login`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/login`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
@@ -16,20 +16,7 @@ export const loginUser = async (username: string, password:string) => {
 
       const data = await res.json()
       if (data && data.access_token && data.refresh_token) {
-        cookies().set({
-            name: 'access_token',
-            value: data.access_token,
-            httpOnly: true,
-            path: '/',
-            expires: new Date(Date.now() + 60 * 60 * 1000)
-          })
-            cookies().set({
-                name: 'refresh_token',
-                value: data.refresh_token,
-                httpOnly: true,
-                path: '/',
-                expires: new Date(Date.now() + 60 * 60 * 1000 * 24 * 7)
-            })
+        mySetCookie(data.access_token, data.refresh_token);
       }
       return data
   }
