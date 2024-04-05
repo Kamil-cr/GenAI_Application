@@ -3,13 +3,13 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from app.api.utils.db import db_session
 from app.api.utils.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_MINUTES, JWT_REFRESH_SECRET_KEY
-from app.api.utils.models import Cart, CartDelete, CartUpdate, Product, TokenData, User, UserCreate
+from app.api.utils.models import Cart, CartDelete, CartUpdate, Order, OrderCreate, Product, TokenData, User, UserCreate
 from datetime import datetime, timedelta, timezone
 from sqlmodel import Session, select
 from fastapi import Depends, HTTPException, status
 from pydantic import EmailStr
 from uuid import uuid4
-from typing import Annotated, Union, Any
+from typing import Annotated, List, Union, Any
 
 SECRET_KEY = str(SECRET_KEY)
 ALGORITHM = str(ALGORITHM)
@@ -125,7 +125,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: An
         raise credentials_exception
     return user
 
-def user_cart(db: Session, user: User) -> list[User]:
+def user_cart(db: Session, user: User) -> list[Cart]:
     user = db.exec(select(User).where(User.username == user.username)).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -182,3 +182,15 @@ def create_product_cart(db: Session, cart: Cart, user: User) -> Cart:
     db.commit()
     db.refresh(dbcart)
     return dbcart
+
+def create_order(db: Session, order: OrderCreate, user: User) -> Order:
+    cart: List[Cart] = user_cart(db, user)
+    order_total = sum(item.product_total for item in cart)
+    order = Order(user_id=user.id, payment_method=order.payment_method, order_total=order_total, first_name=order.first_name, last_name=order.last_name, address=order.address, city=order.city, state=order.state, contact_number=order.contact_number)
+    db.add(order)
+    for item in cart:
+        db.delete(item)
+        db.commit()
+    db.commit()
+    db.refresh(order)
+    return order

@@ -61,15 +61,6 @@ class CartUpdate(CartBase):
 class CartDelete(CartBase):
     pass
 
-class OrderBase(SQLModel):
-    user_id: UUID = Field(default=None, foreign_key="user.id")
-    order_status: str 
-
-class Order(OrderBase, table=True):
-    id: Optional[int] = Field(primary_key=True)
-    order_total: float
-    order_date: datetime = Field(default=datetime.now())
-
 class Token(SQLModel):
     access_token: str
     token_type: str
@@ -78,3 +69,36 @@ class Token(SQLModel):
 
 class TokenData(SQLModel):
     username: str | None = None
+
+class OrderStatus(str, enum.Enum):
+    pending = "pending"
+    confirmed = "confirmed"
+    shipped = "shipped"
+    delivered = "delivered"
+    cancelled = "cancelled"
+
+class PaymentMethod(str, enum.Enum):
+    card = "card"
+    cash = "cash"
+
+class OrderBase(SQLModel):
+    payment_method: PaymentMethod = Field(default=PaymentMethod.cash,sa_column=Column("payment_method", Enum(PaymentMethod)))
+    first_name: str
+    last_name: str
+    address: str
+    city: str
+    state: str
+    contact_number: str
+
+class Order(OrderBase, table=True):
+    id: Optional[int] = Field(primary_key=True)
+    order_date: datetime = Field(default=datetime.now())
+    user_id: UUID = Field(default=None, foreign_key="user.id")
+    order_total: float
+    order_status: OrderStatus = Field(default=OrderStatus.pending, sa_column=Column("order_status", Enum(OrderStatus)))
+
+class OrderCreate(OrderBase):
+    pass
+
+class OrderUpdate(OrderBase):
+    pass

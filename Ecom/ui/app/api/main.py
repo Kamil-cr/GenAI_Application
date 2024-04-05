@@ -6,8 +6,8 @@ from app.api.utils.settings import REFRESH_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALG
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from datetime import timedelta
-from app.api.utils.services import create_product_cart, delete_cart_product, get_current_user, get_user_by_username, update_cart, user_cart, verify_password, create_access_token, signup_user
-from app.api.utils.models import Cart, CartCreate, Product, TokenData, Token, Order, User, UserCreate, Userlogin
+from app.api.utils.services import create_order, create_product_cart, delete_cart_product, get_current_user, get_user_by_username, update_cart, user_cart, verify_password, create_access_token, signup_user
+from app.api.utils.models import Cart, CartCreate, OrderCreate, Product, TokenData, Token, Order, User, UserCreate, Userlogin
 from app.api.utils.db import lifespan, db_session
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -110,11 +110,9 @@ def delete_cart(cart: CartCreate, session: Annotated[Session, Depends(db_session
     return {"message": "Product removed from cart"}
 
 @app.post("/order", response_model=Order)
-def post_order(order: Order, session: Annotated[Session, Depends(db_session)]):
-    session.add(order)
-    session.commit()
-    session.refresh()
-    return {"message": "Successful"}
+def post_order(order: OrderCreate, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> Order:
+    new_order = create_order(session, order, user)
+    return new_order
 
 @app.get("/orders", response_model=List[Order])
 def get_orders(session: Annotated[Session, Depends(db_session)]):
