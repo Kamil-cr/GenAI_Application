@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field, Relationship, ColumnDefault, Column, Enum, ARRAY
 import enum
-from typing import List, Optional
+from typing import List, Optional, Union
 from uuid import UUID, uuid4
 from datetime import datetime, timedelta
 
@@ -55,12 +55,20 @@ class Cart(CartBase, table=True):
 class CartCreate(CartBase):
     pass
 
-class Order(SQLModel, table=True):
-    id: Optional[int] = Field(primary_key=True)
-    cart_id: int | None = Field(default=None, foreign_key="cart.id")
-    ordered_at: datetime
-    total: float
+class CartUpdate(CartBase):
+    pass
 
+class CartDelete(CartBase):
+    pass
+
+class OrderBase(SQLModel):
+    user_id: UUID = Field(default=None, foreign_key="user.id")
+    order_status: str 
+
+class Order(OrderBase, table=True):
+    id: Optional[int] = Field(primary_key=True)
+    order_total: float
+    order_date: datetime = Field(default=datetime.now())
 
 class Token(SQLModel):
     access_token: str

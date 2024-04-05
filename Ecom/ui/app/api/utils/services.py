@@ -3,7 +3,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from app.api.utils.db import db_session
 from app.api.utils.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_MINUTES, JWT_REFRESH_SECRET_KEY
-from app.api.utils.models import TokenData, User, UserCreate
+from app.api.utils.models import Cart, CartDelete, CartUpdate, Product, TokenData, User, UserCreate
 from datetime import datetime, timedelta, timezone
 from sqlmodel import Session, select
 from fastapi import Depends, HTTPException, status
@@ -31,7 +31,7 @@ def get_user_by_username(db:Session,username:str) -> User:
     if username is None:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,headers={"WWW-Authenticate": 'Bearer'},detail={"error": "invalid_token", "error_description": "The access token expired"})
 
-    user = db.exec(select(User).filter(User.username == username)).first()
+    user = db.exec(select(User).where(User.username == username)).first()
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User not found")
@@ -88,11 +88,11 @@ def create_refresh_token(data: Union[str, Any], expires_delta: int = None) -> st
     return encoded_jwt
 
 def signup_user(user: UserCreate, db: Session) -> User:
-    search_user_by_email = db.exec(select(User).filter(User.email == user.email)).first()
+    search_user_by_email = db.exec(select(User).where(User.email == user.email)).first()
     if search_user_by_email:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Email id already registered")
     
-    search_user_by_username = db.exec(select(User).filter(User.username == user.username)).first()
+    search_user_by_username = db.exec(select(User).where(User.username == user.username)).first()
     if search_user_by_username:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Try Different username")
     
@@ -124,3 +124,61 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: An
     if user is None:
         raise credentials_exception
     return user
+
+def user_cart(db: Session, user: User) -> list[User]:
+    user = db.exec(select(User).where(User.username == user.username)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    cart = db.exec(select(Cart).where(Cart.user_id == user.id)).all()
+    return cart
+
+def update_cart(db: Session, cart: CartUpdate, user: User) -> Cart:
+    user = db.exec(select(User).where(User.username == user.username)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    product = db.exec(select(Product).where(Product.sku == cart.product_id)).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    dbcart = db.exec(select(Cart).where(Cart.user_id == user.id, Cart.product_size == cart.product_size, Cart.product_id == cart.product_id)).first()
+    if not dbcart:
+        raise HTTPException(status_code=404, detail="Cart not found")
+    dbcart.id = dbcart.id
+    dbcart.user_id = user.id
+    dbcart.product_id = cart.product_id
+    dbcart.product_size = cart.product_size
+    dbcart.quantity = cart.quantity
+    dbcart.product_total = product.price * dbcart.quantity
+    db.add(dbcart)
+    db.commit()
+    db.refresh(dbcart)
+    return dbcart
+
+def delete_cart_product(db: Session, cart: CartDelete, user: User) -> Cart:
+    user = db.exec(select(User).where(User.username == user.username)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    product = db.exec(select(Product).where(Product.sku == cart.product_id, Cart.product_size == cart.product_size)).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    cart = db.exec(select(Cart).where(Cart.user_id == user.id, Cart.product_id == cart.product_id, Cart.product_size == cart.product_size)).first()
+    if not cart:
+        raise HTTPException(status_code=404, detail="Cart not found")
+    db.delete(cart)
+    db.commit()
+    return cart
+
+def create_product_cart(db: Session, cart: Cart, user: User) -> Cart:
+    user = db.exec(select(User).where(User.username == user.username)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    product = db.exec(select(Product).where(Product.sku == cart.product_id)).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    product_in_cart = db.exec(select(Cart).where(Cart.product_id == cart.product_id, Cart.user_id == user.id, Cart.product_size == cart.product_size)).first()
+    if product_in_cart:
+        product = update_cart(db, cart, user)
+    dbcart = Cart(product_id=cart.product_id, product_total=product.price*cart.quantity, product_size=cart.product_size, quantity=cart.quantity, user_id=user.id)
+    db.add(dbcart)
+    db.commit()
+    db.refresh(dbcart)
+    return dbcart
