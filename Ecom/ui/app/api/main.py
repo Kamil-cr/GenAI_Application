@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from datetime import timedelta
 from app.api.utils.services import get_current_user, get_user_by_username, verify_password, create_access_token, signup_user
-from app.api.utils.models import Cart, Product, TokenData, Token, Order, User, UserCreate, Userlogin
+from app.api.utils.models import Cart, CartCreate, Product, TokenData, Token, Order, User, UserCreate, Userlogin
 from app.api.utils.db import lifespan, db_session
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -98,9 +98,20 @@ def get_cart(session: Annotated[Session, Depends(db_session)], user: Annotated[U
     return cart
 
 @app.post("/api/cart", response_model=Cart)
-def post_cart(cart: Cart, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> Cart:
-    # user = session.exec(select(User).filter(User.username == user.username)).first()
-    # cart = Cart(**cart.model_dump(), user_id=user.id)
+def post_cart(cart: CartCreate, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> Cart:
+    user = session.exec(select(User).where(User.username == user.username)).first()
+    product = session.exec(select(Product).where(Product.sku == cart.product_id)).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    prod_in_cart = session.exec(select(Cart).where(Cart.product_id == cart.product_id, Cart.user_id == user.id, Cart.product_size == cart.product_size)).first()
+    if prod_in_cart:
+        prod_in_cart.quantity += cart.quantity
+        prod_in_cart.product_total += product.price*cart.quantity
+        session.add(prod_in_cart)
+        session.commit()
+        session.refresh(prod_in_cart)
+        return prod_in_cart
+    cart = Cart(product_id=cart.product_id, product_total=product.price*cart.quantity, product_size=cart.product_size, quantity=cart.quantity, user_id=user.id)
     session.add(cart)
     session.commit()
     session.refresh(cart)
