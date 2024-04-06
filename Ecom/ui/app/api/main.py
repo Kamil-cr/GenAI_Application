@@ -1,4 +1,4 @@
-from uuid import uuid4
+from uuid import UUID, uuid4
 from fastapi import FastAPI, Depends, HTTPException, status, Body
 from sqlmodel import select, Session
 from typing import List, Annotated, Optional
@@ -15,7 +15,7 @@ SECRET_KEY = str(SECRET_KEY)
 ALGORITHM = ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = ACCESS_TOKEN_EXPIRE_MINUTES
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -82,6 +82,11 @@ def get_products(session: Annotated[Session, Depends(db_session)], query: Option
 @app.get("/api/products/{product_slug}", response_model=Product)
 def get_product(product_slug: str, session: Annotated[Session, Depends(db_session)]) -> Product:
     product = session.exec(select(Product).filter(Product.slug == product_slug)).first()
+    return product
+
+@app.get("/api/product", response_model=Product)
+def get_product_by_id(product_id: UUID, session: Annotated[Session, Depends(db_session)]) -> Product:
+    product = session.exec(select(Product).where(Product.sku == product_id)).first()
     return product
 
 @app.get("/api/cart", response_model=List[Cart])

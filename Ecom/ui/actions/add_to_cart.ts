@@ -18,6 +18,8 @@ export const addToCart = async (size: string, product_data: IProducts) => {
             }),
         })
         const data = await response.json()
+        console.log(data, "data");
+        
         return data
     } catch (error) {
         console.log(error, "error");
