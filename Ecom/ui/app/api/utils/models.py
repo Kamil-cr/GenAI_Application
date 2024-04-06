@@ -50,7 +50,7 @@ class CartBase(SQLModel):
 class Cart(CartBase, table=True):
     id: Optional[int] = Field(primary_key=True)
     user_id: UUID = Field(default=None, foreign_key="user.id")
-    product_total: Optional[float]
+    product_total: float
 
 class CartCreate(CartBase):
     pass

@@ -146,7 +146,7 @@ def update_cart(db: Session, cart: CartUpdate, user: User) -> Cart:
     dbcart.user_id = user.id
     dbcart.product_id = cart.product_id
     dbcart.product_size = cart.product_size
-    dbcart.quantity = cart.quantity
+    dbcart.quantity += cart.quantity
     dbcart.product_total = product.price * dbcart.quantity
     db.add(dbcart)
     db.commit()
@@ -177,6 +177,7 @@ def create_product_cart(db: Session, cart: Cart, user: User) -> Cart:
     product_in_cart = db.exec(select(Cart).where(Cart.product_id == cart.product_id, Cart.user_id == user.id, Cart.product_size == cart.product_size)).first()
     if product_in_cart:
         product = update_cart(db, cart, user)
+        return product
     dbcart = Cart(product_id=cart.product_id, product_total=product.price*cart.quantity, product_size=cart.product_size, quantity=cart.quantity, user_id=user.id)
     db.add(dbcart)
     db.commit()
