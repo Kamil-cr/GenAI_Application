@@ -9,9 +9,13 @@ import { DialogDemo } from './DialogDemo';
 
 const Navbar = async () => {
   const isCookies = cookies().has("access_token") || cookies().has("refresh_token");  
+  let name
+  let email
   const user = await getUser()
-  const name: string = user.username
-  const email: string = user.email
+  if(user){
+  name = user?.username
+  email = user.email
+  }
   return (
     <nav className='pointer-events-auto w-full lg:px-0 px-3.5 gap-4 xs:px-6 sm:px-12 py-6 flex items-center justify-center border-zinc-800 border-b border-solid'>
         <ul className='flex justify-between gap-2 text-sm'>

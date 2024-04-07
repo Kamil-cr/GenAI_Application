@@ -28,7 +28,7 @@ const page = async () => {
                         </div> 
                         <div className='flex justify-between relative flex-col gap-2.5 p-3.5 z-10'>
                             <h3 className='font-semibold text-sm line-clamp-1'>{product.product_data.name}</h3>
-                            <p className='text-gray-500 text-sm mt-1'>${product.product_data.price}</p>
+                            <p className='text-gray-500 text-sm mt-1'>${(product.product_data.price*product.quantity).toFixed(2)}</p>
                         </div>
                     </Link>
                     <ProductQuantity {...product} />

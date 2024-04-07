@@ -11,9 +11,10 @@ const Product_to_Cart = ({product_data}: {product_data: IProducts}) => {
     const router = useRouter()
     const searchQuery = useSearchParams()
     const defaultSearchQuery = searchQuery?.get("size") ?? ""
+    const quantity = 1
 
     const submitdata = () => {
-        addToCart(defaultSearchQuery, product_data)
+        addToCart(defaultSearchQuery, product_data, quantity)
     }
     
   return (
