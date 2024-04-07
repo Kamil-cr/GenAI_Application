@@ -13,7 +13,11 @@ export const GetCart = async () => {
             },
         })
         const data = await response.json()
-        return data
+        const product = await Promise.all(data.map(async (prod: any) => {
+            const product_data = await getProductbyID(prod.product_id)
+            return {...prod, product_data}
+        }))
+        return product
     } catch (error) {
         console.log(error, "error");
         console.log("error is error");

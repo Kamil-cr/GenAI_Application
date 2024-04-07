@@ -1,7 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
 import { products } from "@/actions/products"
-import { UUID } from "crypto"
 
 interface Iprops {
     search?: string
@@ -14,7 +13,7 @@ export interface IProducts {
     image2: string,
     description: string,
     slug: string,
-    sku: UUID
+    sku: string
 }
 
 const Products = async ({search}: Iprops) => {    
