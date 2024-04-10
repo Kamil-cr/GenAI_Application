@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/theme-provider"
 import { Footer } from "@/components/Footer";
+import ChatBox from "@/components/ChatBox";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,13 +22,14 @@ export default function RootLayout({
     <html lang="en" className="mx-auto max-w-screen-2xl">
       <body className={inter.className}>
         <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
           <Navbar />
           {children}
+          <ChatBox />
           <Footer />
         </ThemeProvider>
       </body>
