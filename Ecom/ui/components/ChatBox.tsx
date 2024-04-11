@@ -1,7 +1,11 @@
 "use client"
+import { openaiapi } from '@/actions/openai';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ImCancelCircle } from "react-icons/im";
 
 const ChatBox = () => {
+    const router = useRouter();
     const [popupOpen, setPopupOpen] = useState(false);
     const [userInput, setUserInput] = useState("");
     const [chatMessages, setChatMessages] = useState<string[]>([]);
@@ -28,7 +32,7 @@ const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     }
 };
 
-const addUserMessage = (message: string) => {
+const addUserMessage = (message: string) => {    
     setChatMessages((prevMessages) => [...prevMessages, message]);
 };
 
@@ -36,10 +40,11 @@ const addBotMessage = (message: string) => {
     setChatMessages((prevMessages) => [...prevMessages, message]);
 };
 
-const respondToUser = (userMessage: string) => {
+const respondToUser = async (userMessage: string) => {
+    const messages = await openaiapi(userMessage);
     // Replace this with your chatbot logic
     setTimeout(() => {
-        addBotMessage(userMessage);
+        addBotMessage(messages);
     }, 500);
 };
 
@@ -62,9 +67,18 @@ const respondToUser = (userMessage: string) => {
             <div style={{ boxShadow: '0 0 #0000, 0 0 #0000, 0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
                 className="fixed bottom-[calc(4rem+1.5rem)] p-1 right-0 mr-4 bg-white  rounded-lg border border-[#e5e7eb] md:h-[400px] w-[400px] lg:h-[500px]">
                 {/* Popup content */}
-                <div className="flex flex-col border space-y-1.5 pb-6">
-                    <h2 className="font-semibold text-lg tracking-tight text-black">Chatbot</h2>
-                    <p className="text-sm text-[#6b7280] leading-3">Powered by Mendable and Vercel</p>
+                <div className='flex  items-center'>
+                    <div className="flex w-full flex-col space-y-1.5 pb-3">
+                        <h2 className="font-semibold text-lg tracking-tight text-black">Chatbot</h2>
+                        <p className="text-sm text-[#6b7280] leading-3">Powered by Mendable and Vercel</p>
+                    </div>
+                    <button
+                        className="inline-flex items-center justify-center text-sm font-medium disabled:pointer-events-none disabled:opacity-50 border rounded-full w-12 h-12  hover:bg-gray-700 cursor-pointer border-gray-200 bg-none normal-case leading-5 hover:text-gray-900"
+                        type="button" aria-haspopup="dialog" aria-expanded="false" data-state="closed"
+                        onClick={openPopup}
+                    >
+                        <ImCancelCircle className='text-black h-12 w-12'/>
+                    </button>
                 </div>
                 {/* Chat Container */}
                 <div className="pr-4 h-[474px]" style={{ minWidth: '100%', display: 'table' }}>

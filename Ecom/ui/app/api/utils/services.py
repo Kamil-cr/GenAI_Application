@@ -10,6 +10,8 @@ from fastapi import Depends, HTTPException, status
 from pydantic import EmailStr
 from uuid import uuid4
 from typing import Annotated, List, Union, Any
+from openai import OpenAI
+
 
 SECRET_KEY = str(SECRET_KEY)
 ALGORITHM = str(ALGORITHM)
@@ -19,7 +21,7 @@ JWT_REFRESH_SECRET_KEY = str(JWT_REFRESH_SECRET_KEY)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -63,7 +65,7 @@ def authenticate_user(db, username: str, password: str) -> User:
     user = get_user_by_username(db, username)
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user.password):
         return False
     return user
 
@@ -96,9 +98,9 @@ def signup_user(user: UserCreate, db: Session) -> User:
     if search_user_by_username:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Try Different username")
     
-    hashed_password = get_password_hash(user.hashed_password)
+    hashed_password = get_password_hash(user.password)
 
-    new_user = User(id = uuid4(),username=user.username, email=user.email, hashed_password=hashed_password)
+    new_user = User(id = uuid4(),username=user.username, email=user.email, password=hashed_password)
 
     db.add(new_user)
     db.commit()

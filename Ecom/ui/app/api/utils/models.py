@@ -30,7 +30,7 @@ class Token(SQLModel):
 
 class UserBase(SQLModel):
     username: str = Field(nullable=False)
-    hashed_password: str = Field(nullable=False)
+    password: str = Field(nullable=False)
 
 class Userlogin(UserBase):
     pass
@@ -42,9 +42,15 @@ class User(UserBase, table=True):
 class UserCreate(UserBase):
     email: str
 
+class ProductSize(str, enum.Enum):
+    S = "S"
+    M = "M"
+    L = "L"
+    XL = "XL"
+
 class CartBase(SQLModel):
     product_id: UUID = Field(default=None, foreign_key="product.sku")
-    product_size: str
+    product_size: ProductSize = Field(default=ProductSize.M, sa_column=Column("product_size", Enum(ProductSize)))
     quantity: int
 
 class Cart(CartBase, table=True):

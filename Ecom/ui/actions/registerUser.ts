@@ -10,7 +10,7 @@ export const registerUser = async (username: string, email: string, password: st
         body: JSON.stringify({
         username: username,
         email: email,
-        hashed_password: password,
+        password: password,
         }),
     })
     const data = await response.json()

@@ -10,6 +10,7 @@ from app.api.utils.services import create_order, create_product_cart, delete_car
 from app.api.utils.models import Cart, CartCreate, OrderCreate, Product, TokenData, Token, Order, User, UserCreate, Userlogin
 from app.api.utils.db import lifespan, db_session
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.utils.openai import generate_message
 
 SECRET_KEY = str(SECRET_KEY)
 ALGORITHM = ALGORITHM
@@ -43,7 +44,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    if not verify_password(form_data.password, user.hashed_password):
+    if not verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -118,3 +119,8 @@ def post_order(order: OrderCreate, session: Annotated[Session, Depends(db_sessio
 def get_orders(session: Annotated[Session, Depends(db_session)]):
     orders = session.exec(select(Order)).all()
     return orders
+
+@app.post("/api/openai")
+def openai(prompt: str) -> dict:
+    messages = generate_message(prompt)
+    return {"message": messages}
