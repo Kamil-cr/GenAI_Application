@@ -124,3 +124,4 @@ def get_orders(session: Annotated[Session, Depends(db_session)]):
 def openai(prompt: str) -> dict:
     messages = generate_message(prompt)
     return {"message": messages}
+

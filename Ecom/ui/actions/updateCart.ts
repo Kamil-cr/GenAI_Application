@@ -14,7 +14,8 @@ export const updateCart = async (product_id: string,product_size: string,quantit
                 product_id: product_id,
                 product_size: product_size,
                 quantity: quantity,
-        })
+        }),
+        cache: 'no-cache',
     })
         const data = await response.json()
         return data

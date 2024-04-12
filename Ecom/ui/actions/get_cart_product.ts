@@ -11,6 +11,7 @@ export const GetCart = async () => {
                 "Content-Type": "application/json",
                 'Authorization': `Bearer ${isCookies}`
             },
+            cache: 'no-cache',
         })
         const data = await response.json()
         const product = await Promise.all(data.map(async (prod: any) => {

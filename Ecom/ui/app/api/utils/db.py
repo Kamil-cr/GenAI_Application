@@ -5,9 +5,15 @@ from . import settings
 from .models import User
 
 # Create the database engine
-connctionstring = str(settings.DATABASE_URL)
+# connctionstring = str(settings.DATABASE_URL)
 
-engine = create_engine(connctionstring, pool_recycle=300, connect_args={"sslmode": "require"}) 
+# engine = create_engine(connctionstring, pool_recycle=300, connect_args={"sslmode": "require"}) 
+
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+connect_args = {"check_same_thread": False}
+engine = create_engine(sqlite_url, echo=True, connect_args=connect_args)
 
 # Create the tables
 def create_db_and_tables():
@@ -22,7 +28,3 @@ async def lifespan(app: FastAPI):
 def db_session():
     with Session(engine) as session:
         yield session
-
-# with Session(engine) as session:
-#     user = session.exec(select(User).filter(User.id == "f2a6242d-7764-4608-a382-f7abda7ae33f")).first()
-#     print(user)

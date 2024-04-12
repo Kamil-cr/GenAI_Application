@@ -16,6 +16,7 @@ export interface ICart {
 
 const page = async () => {
   const data: ICart[] = await GetCart() || []
+  const price = data.reduce((acc, product) => acc + product.product_data.price*product.quantity, 0)
     return (
       <div className='lg:mx-20 md:mx-10 grid lg:grid-cols-3  md:grid-cols-2 grid-cols-1 md:space-y-6 space-y-9 space-x-5 md:space-x-10 '>
         {data.map((product, index) => {    
@@ -35,7 +36,20 @@ const page = async () => {
                 </div>
             )
         })}
-      {/* <Cart products={data} /> */}
+        <div className='fixed left-[50%] translate-x-[-50%] bottom-4 w-[90%] z-10 sm:w-[360px] rounded-xl overflow-hidden flex bg-black border border-solid border-border-primary h-min'>
+          <div className="flex flex-col p-2.5 justify-center w-1/2 gap-2 text-center">
+            <div className='flex gap-2.5 justify-center text-sm'>
+              <span>Total:</span>
+              <span>{price}</span>
+            </div>
+              <span className='text-xs'>+ TAX INCL.</span>
+          </div>
+          <div className='w-1/2 border-l border-solid bg-background-secondary border-border-primary'>
+            <button className='w-full h-full text-white bg-button-primary'>
+              <Link href={"/"}>Checkout</Link>
+            </button>
+          </div>
+        </div>
       </div>
     )
 }

@@ -10,8 +10,6 @@ from fastapi import Depends, HTTPException, status
 from pydantic import EmailStr
 from uuid import uuid4
 from typing import Annotated, List, Union, Any
-from openai import OpenAI
-
 
 SECRET_KEY = str(SECRET_KEY)
 ALGORITHM = str(ALGORITHM)
@@ -148,6 +146,27 @@ def update_cart(db: Session, cart: CartUpdate, user: User) -> Cart:
     dbcart.user_id = user.id
     dbcart.product_id = cart.product_id
     dbcart.product_size = cart.product_size
+    dbcart.quantity = cart.quantity
+    dbcart.product_total = product.price * dbcart.quantity
+    db.add(dbcart)
+    db.commit()
+    db.refresh(dbcart)
+    return dbcart
+
+def update_cart_quantity(db: Session, cart: CartUpdate, user: User) -> Cart:
+    user = db.exec(select(User).where(User.username == user.username)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    product = db.exec(select(Product).where(Product.sku == cart.product_id)).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    dbcart = db.exec(select(Cart).where(Cart.user_id == user.id, Cart.product_size == cart.product_size, Cart.product_id == cart.product_id)).first()
+    if not dbcart:
+        raise HTTPException(status_code=404, detail="Cart not found")
+    dbcart.id = dbcart.id
+    dbcart.user_id = user.id
+    dbcart.product_id = cart.product_id
+    dbcart.product_size = cart.product_size
     dbcart.quantity += cart.quantity
     dbcart.product_total = product.price * dbcart.quantity
     db.add(dbcart)
@@ -178,7 +197,7 @@ def create_product_cart(db: Session, cart: Cart, user: User) -> Cart:
         raise HTTPException(status_code=404, detail="Product not found")
     product_in_cart = db.exec(select(Cart).where(Cart.product_id == cart.product_id, Cart.user_id == user.id, Cart.product_size == cart.product_size)).first()
     if product_in_cart:
-        product = update_cart(db, cart, user)
+        product = update_cart_quantity(db, cart, user)
         return product
     dbcart = Cart(product_id=cart.product_id, product_total=product.price*cart.quantity, product_size=cart.product_size, quantity=cart.quantity, user_id=user.id)
     db.add(dbcart)

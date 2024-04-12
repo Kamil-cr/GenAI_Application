@@ -9,9 +9,9 @@ const ProductQuantity = (product: ICart) => {
     let [quantity, setQuantity] = useState(product.quantity)    
   return (
      <div className='flex bg-black w-min'> 
-        <button id='minus' onClick={()=>{setQuantity((previos)=>previos-1);updateCart(product.product_id, product.product_size, product.quantity)}} className='flex items-center justify-center w-8 h-8 p-2 border border-solid rounded-l border-border-primary '>-</button>
+        <button id='minus' onClick={() => {setQuantity((previos) => previos-1);updateCart(product.product_id, product.product_size, quantity)}} className='flex items-center justify-center w-8 h-8 p-2 border border-solid rounded-l border-border-primary '>-</button>
         <span className='flex items-center justify-center w-8 h-8 p-2 border border-solid border-border-primary'>{quantity}</span>
-        <button id='plus' onClick={()=> {setQuantity((previos)=> previos+1);updateCart(product.product_id, product.product_size, product.quantity)}} className='flex items-center justify-center w-8 h-8 p-2 border border-solid rounded-r border-border-primary'>+</button>
+        <button id='plus' onClick={()=> {setQuantity((previos) => previos+1);updateCart(product.product_id, product.product_size, quantity)}} className='flex items-center justify-center w-8 h-8 p-2 border border-solid rounded-r border-border-primary'>+</button>
       </div> 
   )
 }

@@ -6,6 +6,7 @@ export const products = async(search?: string) => {
           headers: {
             'Content-Type': 'application/json'
           },
+          cache: 'no-cache'
       })
       const data = await res.json()      
       return data
