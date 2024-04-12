@@ -108,3 +108,6 @@ class OrderCreate(OrderBase):
 
 class OrderUpdate(OrderBase):
     pass
+
+class OrderDelete(SQLModel):
+    id: int
