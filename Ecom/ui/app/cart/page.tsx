@@ -52,7 +52,7 @@ const page = async () => {
           </div>
           <div className='w-1/2 border-l border-solid hover:bg-slate-800'>
             <button className='w-full h-full text-white '>
-              <Link href={"/"}>Checkout</Link>
+              <Link href={"/checkout"}>Checkout</Link>
             </button>
           </div>
         </div>
