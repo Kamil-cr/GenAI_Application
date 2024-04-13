@@ -110,12 +110,12 @@ def delete_cart(cart: CartCreate, session: Annotated[Session, Depends(db_session
     delete_cart_product(session, cart, user)
     return {"message": "Product removed from cart"}
 
-@app.post("/order", response_model=Order)
+@app.post("/api/order", response_model=Order)
 def post_order(order: OrderCreate, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> Order:
     new_order = create_order(session, order, user)
     return new_order
 
-@app.get("/orders", response_model=List[Order])
+@app.get("/api/orders", response_model=List[Order])
 def get_orders(session: Annotated[Session, Depends(db_session)]):
     orders = session.exec(select(Order)).all()
     return orders
