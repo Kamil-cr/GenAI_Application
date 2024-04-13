@@ -6,17 +6,19 @@ import Link from 'next/link'
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { ICart } from '../cart/page'
+import Image from 'next/image'
 
 const page = () => {
   const [paymentMethod, setPaymentMethod] = useState('cod')
   const [data, setData] = useState<ICart[]>([])
-  const po = GetCart()
   useEffect(() => {
-    po.then((res) => {
-      setData(res)
-    })
+    const fetchData = async () => {
+      const cart = await GetCart();
+      setData(cart as ICart[]);
+    }
+    fetchData();
   }, [])
-  console.log(data, "data");
+  const price = data.reduce((acc, product) => acc + product.product_data.price*product.quantity, 0)
   
   return (
     <div className='grid mx-10 space-x-10 grid-cols-12'>
@@ -112,9 +114,9 @@ const page = () => {
             {data.length > 0 ? (
               data.map((product, index) => {
                 return (
-                  <div key={product.product_data.sku} className='flex justify-between'>
+                  <div key={product.product_data.sku} className='flex space-x-3'>
+                    <Image src={product.product_data.image1} alt={product.product_data.name} height={10} className='w-fit h-20 ' width={80} />
                     <span>{product.product_data.name}</span>
-                    <span>${product.product_data.price}</span>
                   </div>
                 )
               })
@@ -123,35 +125,11 @@ const page = () => {
                 <span>No Product</span>
               </div>
             )}
-            {/* <div className='flex justify-between'>
-              <span>Product Name</span>
-              <span>Price</span>
-            </div>
-            <div className='flex justify-between'>
-              <span>Product Name</span>
-              <span>Price</span>
-            </div>
-            <div className='flex justify-between'>
-              <span>Product Name</span>
-              <span>Price</span>
-            </div>
-            <div className='flex justify-between'>
-              <span>Product Name</span>
-              <span>Price</span>
-            </div>
-            <div className='flex justify-between'>
-              <span>Product Name</span>
-              <span>Price</span>
-            </div>
-            <div className='flex justify-between'>
-              <span>Product Name</span>
-              <span>Price</span>
-            </div> */}
           </div>
           <div className='border-t mt-5 px-5 py-5'>
             <div className='flex justify-between'>
               <span>Total</span>
-              <span>Price</span>
+              <span>${price}</span>
             </div>
           </div>
           <div className='px-5 py-5'>

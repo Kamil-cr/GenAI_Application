@@ -3,7 +3,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { IProducts } from '@/components/Products'
 import ProductQuantity from '@/components/ProductQuantity'
-import { MdOutlineCancel } from "react-icons/md";
 import Delete_products from '@/components/Delete_products'
 
 export interface ICart {
