@@ -10,8 +10,14 @@ import Image from 'next/image'
 import { placeorder } from '@/actions/placeorder'
 
 const page = () => {
-  const [paymentMethod, setPaymentMethod] = useState('cod')
+  const [paymentmethod, setPaymentMethod] = useState('cash')
   const [data, setData] = useState<ICart[]>([])
+  const [firstname, setFirstname] = useState('')
+  const [lastname, setLastname] = useState('')
+  const [address, setAddress] = useState('')
+  const [state, setState] = useState('')
+  const [city, setCity] = useState('')
+  const [contactnumber, setContactnumber] = useState('')
   useEffect(() => {
     const fetchData = async () => {
       const cart = await GetCart();
@@ -19,20 +25,13 @@ const page = () => {
     }
     fetchData();
   }, [])
-  const price = data?.reduce((acc, product) => acc + product.product_data.price*product.quantity, 0)
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    const firstname = formData.get('firstname') as string
-    const lastname = formData.get('lastname') as string
-    const address = formData.get('address') as string
-    const state = formData.get('state') as string
-    const city = formData.get('city') as string
-    const contactnumber = formData.get('contactnumber') as string
-  
-    placeorder({prod: {firstname, lastname, address, state, city, contactnumber}})
-  }
 
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    placeorder(firstname, lastname, address, state, city, contactnumber, paymentmethod)
+  };
+
+  const price = data?.reduce((acc, item) => acc + item.product_data.price, 0)
   return (
     <form onSubmit={submit} className='grid mx-10  space-x-10 grid-cols-12'>
         <div className='col-span-7 border px-5 rounded-xl'>
@@ -48,42 +47,42 @@ const page = () => {
             <div className='flex space-x-5'>
               <div className='flex-1 space-y-1'>
                 <label htmlFor='firstName'>First Name</label>
-                <input type='text' id='firstname' name='firstname' placeholder='First Name' maxLength={20} minLength={5} className='w-full rounded-lg active:border p-2' />
+                <input type='text' onChange={(e) => setFirstname(e.target.value)} id='firstname' name='firstname' placeholder='First Name' maxLength={20} minLength={5} className='w-full rounded-lg active:border p-2' />
               </div>
               <div className='flex-1 space-y-1'>
                 <label htmlFor='lastName'>Last Name</label>
-                <input type='text' id='lastname' name='lastname' placeholder='Last Name' maxLength={20} minLength={5} className='w-full rounded-lg active:border p-2' />
+                <input type='text' id='lastname' onChange={(e)=> setLastname(e.target.value)} name='lastname' placeholder='Last Name' maxLength={20} minLength={5} className='w-full rounded-lg active:border p-2' />
               </div>
             </div>
             <div className='flex space-x-5'>
               <div className='flex-1 space-y-1'>
                 <label htmlFor='address'>Address</label>
-                <input type='text' id='address' name='address' placeholder='Address' maxLength={40} minLength={5} className='w-full rounded-lg active:border p-2' />
+                <input type='text' id='address' name='address' onChange={(e)=> setAddress(e.target.value)} placeholder='Address' maxLength={40} minLength={5} className='w-full rounded-lg active:border p-2' />
               </div>
               <div className='flex-1 space-y-1'>
                 <label htmlFor='state'>State</label>
-                <input type='text' id='state' name='state' placeholder='State' maxLength={20} minLength={5} className='w-full rounded-lg active:border p-2' />
+                <input type='text' id='state' name='state' placeholder='State' onChange={(e)=>setState(e.target.value)} maxLength={20} minLength={5} className='w-full rounded-lg active:border p-2' />
               </div>
             </div>
             <div className='flex space-x-5'>
               <div className='flex-1 space-y-1'>
                 <label htmlFor='city'>City</label>
-                <input type='text' id='city' name='city' placeholder='City' maxLength={20} minLength={5} className='w-full rounded-lg active:border p-2' />
+                <input type='text' id='city' name='city' placeholder='City' onChange={(e)=> setCity(e.target.value)} maxLength={20} minLength={5} className='w-full rounded-lg active:border p-2' />
               </div>
               <div className='flex-1 space-y-1'>
                 <label htmlFor='contactnumber'>Contact Number</label>
-                <input type='text' name='contactnumber' id='contactnumber' placeholder='Contact Number' maxLength={20} minLength={5} className='w-full rounded-lg active:border p-2' />
+                <input type='text' name='contactnumber' id='contactnumber' onChange={(e)=> setContactnumber(e.target.value)} placeholder='Contact Number' maxLength={20} minLength={5} className='w-full rounded-lg active:border p-2' />
               </div>
             </div>
           </div>
           {/* Payment Methods */}
           <div className='mb-5 mt-10'>
             <h3 className='text-lg mb-4 font-semibold'>Payment Method</h3>
-            <RadioGroup defaultValue="cod" onValueChange={(value)=>setPaymentMethod(value)}>
+            <RadioGroup defaultValue="cash" onValueChange={(value)=>setPaymentMethod(value)}>
               <div className="flex items-center space-x-5">
                 <div className='space-x-2'>
-                  <RadioGroupItem value="cod" id="cod" />
-                  <Label htmlFor="cod">Cash On Delivery</Label>
+                  <RadioGroupItem value="cash" id="cash" />
+                  <Label htmlFor="cash">Cash On Delivery</Label>
                 </div>
                 <div className='space-x-2'>
                   <RadioGroupItem value="card" id="card" />
@@ -91,7 +90,7 @@ const page = () => {
                 </div>
               </div>
             </RadioGroup>
-            {paymentMethod == 'card' && (
+            {paymentmethod == 'card' && (
               <div className='mt-5 space-y-5'>
                 <h3 className='text-lg mb-4 font-semibold'>Card Details</h3>
                 <div className='flex space-x-5'>
