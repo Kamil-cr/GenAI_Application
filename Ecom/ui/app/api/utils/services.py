@@ -206,6 +206,9 @@ def create_product_cart(db: Session, cart: Cart, user: User) -> Cart:
     return dbcart
 
 def create_order(db: Session, order: OrderCreate, user: User) -> Order:
+    user = db.exec(select(User).where(User.username == user.username)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     cart: List[Cart] = user_cart(db, user)
     order_total = sum(item.product_total for item in cart)
     order = Order(user_id=user.id, payment_method=order.payment_method, order_total=order_total, first_name=order.first_name, last_name=order.last_name, address=order.address, city=order.city, state=order.state, contact_number=order.contact_number)

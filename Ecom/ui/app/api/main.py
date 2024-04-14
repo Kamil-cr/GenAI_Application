@@ -116,8 +116,8 @@ def post_order(order: OrderCreate, session: Annotated[Session, Depends(db_sessio
     return new_order
 
 @app.get("/api/orders", response_model=List[Order])
-def get_orders(session: Annotated[Session, Depends(db_session)]):
-    orders = session.exec(select(Order)).all()
+def get_orders(user: Annotated[User, Depends(get_current_user)],session: Annotated[Session, Depends(db_session)]):
+    orders = session.exec(select(Order).where(Order.user_id == user.id)).all()
     return orders
 
 @app.post("/api/openai")
