@@ -1,6 +1,5 @@
 "use server"
 import { myGetCookie } from "@/lib/auth";
-import { cookies } from "next/headers";
 
 export const getUser = async () =>{
     const isCookies = await myGetCookie()
