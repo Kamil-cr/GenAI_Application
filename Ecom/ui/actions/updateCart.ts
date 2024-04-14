@@ -2,7 +2,7 @@
 import { cookies } from "next/headers";
 
 export const updateCart = async (product_id: string,product_size: string,quantity: number) => {
-    const isCookies = cookies().get("access_token")?.value;
+    const isCookies = cookies().get("access_token")?.value || cookies().get("refresh_token")?.value;
     try{
         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart`, {
             method: "PATCH",

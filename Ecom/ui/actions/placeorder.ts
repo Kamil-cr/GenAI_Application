@@ -14,7 +14,7 @@ interface IData {
 }
 
 export const placeorder = async (firstname: string, lastname: string, address: string, state: string,city: string,contactnumber: string, paymentmethod: string) => {
-    const isCookies = cookies().get("access_token")?.value    
+    const isCookies = cookies().get("access_token")?.value || cookies().get("refresh_token")?.value;    
     try{
         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/order`, {
             method: 'POST',

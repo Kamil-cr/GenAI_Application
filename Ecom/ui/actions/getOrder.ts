@@ -2,7 +2,7 @@
 import { cookies } from "next/headers";
 
 export const userOrders = async () => {
-    const isCookies = cookies().get("access_token")?.value
+    const isCookies = cookies().get("access_token")?.value || cookies().get("refresh_token")?.value;
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders`, {
             method: 'GET',

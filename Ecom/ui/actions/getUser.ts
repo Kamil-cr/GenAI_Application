@@ -2,7 +2,7 @@
 import { cookies } from "next/headers";
 
 export const getUser = async () =>{
-    const isCookies = cookies().get("access_token")?.value;
+    const isCookies = cookies().get("access_token")?.value || cookies().get("refresh_token")?.value;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/me`, {
             method: 'GET',
