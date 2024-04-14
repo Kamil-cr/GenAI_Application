@@ -5,10 +5,11 @@ import Search from './Search';
 import { DropdownMenuDemo } from './Card';
 import { cookies } from 'next/headers';
 import { getUser } from "@/actions/getUser"
-import { DialogDemo } from './DialogDemo';
+import { DialogDemo } from './EditProfile';
+import { myGetCookie } from '@/lib/auth';
 
 const Navbar = async () => {
-  const isCookies = cookies().has("access_token") || cookies().has("refresh_token");  
+  const isCookies = await myGetCookie()
   let name
   let email
   const user = await getUser()

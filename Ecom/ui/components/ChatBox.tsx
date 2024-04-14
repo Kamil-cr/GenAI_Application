@@ -1,11 +1,12 @@
 "use client"
 import { openaiapi } from '@/actions/openai';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ImCancelCircle } from "react-icons/im";
+import { LuMessageCircle } from "react-icons/lu";
+import { RxCross2 } from "react-icons/rx";
+
+
 
 const ChatBox = () => {
-    const router = useRouter();
     const [popupOpen, setPopupOpen] = useState(false);
     const [userInput, setUserInput] = useState("");
     const [chatMessages, setChatMessages] = useState<string[]>([]);
@@ -55,13 +56,7 @@ const respondToUser = async (userMessage: string) => {
             type="button" aria-haspopup="dialog" aria-expanded="false" data-state="closed"
             onClick={openPopup}
         >
-            <ImCancelCircle className='text-white h-8 w-8'/>
-            {/* <svg xmlns=" http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                className="text-white block border-gray-200 align-middle"
-            >
-                <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" className="border-gray-200"></path>
-            </svg> */}
+            <LuMessageCircle className='text-white h-8 w-8'/>
         </button>
 
         {popupOpen && (
@@ -78,7 +73,7 @@ const respondToUser = async (userMessage: string) => {
                         type="button" aria-haspopup="dialog" aria-expanded="false" data-state="closed"
                         onClick={openPopup}
                     >
-                        <ImCancelCircle className='text-black h-12 w-12'/>
+                        <RxCross2 className='text-black border-none rounded-full hover:bg-slate-500 bg-inherit h-12 w-12'/>
                     </button>
                 </div>
                 {/* Chat Container */}
