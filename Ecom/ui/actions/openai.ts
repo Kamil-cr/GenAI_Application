@@ -1,9 +1,8 @@
 "use server"
-import { cookies } from "next/headers";
+import { myGetCookie } from "@/lib/auth";
 
 export const openaiapi = async (prompt: string) => {
-    // console.log(prompt, "prompt");    
-    // const isCookies = cookies().get("access_token")?.value;
+    const isCookies = await myGetCookie()
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/openai?prompt=${prompt}`, {
             method: "POST",

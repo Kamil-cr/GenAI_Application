@@ -1,8 +1,8 @@
 "use server"
-import { cookies } from "next/headers"
+import { myGetCookie } from "@/lib/auth"
 
 export async function deleteCart(product_id: string, product_size: string, quantity: number) {
-  const isCookies = cookies().get("access_token")?.value || cookies().get("refresh_token")?.value;
+  const isCookies = await myGetCookie()
   const res = await fetch(`http://localhost:3000/api/cart`, {
     method: 'DELETE',
     headers: {

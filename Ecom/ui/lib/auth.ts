@@ -8,9 +8,8 @@ export const myDeleteCookie = () => {
 }
 
 export const myGetCookie = () => {
-    const access_token = cookies().get("access_token")?.value
-    const refresh_token = cookies().get("refresh_token")?.value
-    return {access_token, refresh_token}
+    const tokens = cookies().get("access_token")?.value || cookies().get("refresh_token")?.value
+    return tokens
 }
 
 export const checkCookie = () => {

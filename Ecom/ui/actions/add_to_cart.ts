@@ -1,9 +1,9 @@
 "use server"
 import { IProducts } from "@/components/Products"
-import { cookies } from "next/headers";
+import { myGetCookie } from "@/lib/auth";
 
 export const addToCart = async (size: string, product_data: IProducts, quantity:number) => {
-    const isCookies = cookies().get("access_token")?.value || cookies().get("refresh_token")?.value;
+    const isCookies = await myGetCookie()
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart`, {
             method: "POST",

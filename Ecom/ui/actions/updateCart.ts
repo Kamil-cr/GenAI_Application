@@ -1,8 +1,8 @@
 "use server"
-import { cookies } from "next/headers";
+import { myGetCookie } from "@/lib/auth";
 
 export const updateCart = async (product_id: string,product_size: string,quantity: number) => {
-    const isCookies = cookies().get("access_token")?.value || cookies().get("refresh_token")?.value;
+    const isCookies = await myGetCookie()
     try{
         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart`, {
             method: "PATCH",

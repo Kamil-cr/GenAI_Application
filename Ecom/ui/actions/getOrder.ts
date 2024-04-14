@@ -1,8 +1,8 @@
 "use server"
-import { cookies } from "next/headers";
+import { myGetCookie } from "@/lib/auth";
 
 export const userOrders = async () => {
-    const isCookies = cookies().get("access_token")?.value || cookies().get("refresh_token")?.value;
+    const isCookies = await myGetCookie()
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders`, {
             method: 'GET',
