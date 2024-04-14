@@ -14,9 +14,9 @@ interface IData {
 }
 
 export const placeorder = async (firstname: string, lastname: string, address: string, state: string,city: string,contactnumber: string, paymentmethod: string) => {
-    const isCookies = cookies().get("access_token")?.value
+    const isCookies = cookies().get("access_token")?.value    
     try{
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/order`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/order`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -24,21 +24,22 @@ export const placeorder = async (firstname: string, lastname: string, address: s
             },
             body: JSON.stringify(
                 {
-                    firstname: firstname,
-                    lastname: lastname,
+                    first_name: firstname,
+                    last_name: lastname,
                     address: address,
                     state: state,
                     city: city,
-                    contactnumber: contactnumber,
+                    contact_number: contactnumber,
                     payment_method: paymentmethod
                 }
             )
-        })
+        })        
         const data = await response.json()
+        console.log(data, "data");
         return data
-        
     }
-    catch(err){
-        return err
+    catch (error) {
+        console.log(error, "error");
+        console.log("error is error");
     }
 }
