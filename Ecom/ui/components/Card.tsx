@@ -2,7 +2,6 @@
 import {
 CreditCard,
 LogOut,
-User,
 } from "lucide-react"
 import { Dialog } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -17,9 +16,7 @@ DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 import { myDeleteCookie } from "@/lib/auth"
-import { DialogDemo } from "./DialogDemo"
 import Link from "next/link"
-import { useState } from "react"
 
 export function DropdownMenuDemo({name}: {name: string}) {
     const router = useRouter()
@@ -33,12 +30,8 @@ export function DropdownMenuDemo({name}: {name: string}) {
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            {/* <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <span>Edit Profile</span>
-            </DropdownMenuItem> */}
             <Link href="/orders" >
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={()=>router.push("/orders")}>
               <CreditCard className="mr-2 h-4 w-4" />
               <span>View Orders</span>
             </DropdownMenuItem>
