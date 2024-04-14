@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { IProducts } from '@/components/Products'
 import ProductQuantity from '@/components/ProductQuantity'
 import Delete_products from '@/components/Delete_products'
+import { checkCookie } from '@/lib/auth'
 
 export interface ICart {
   product_id: string,
@@ -16,7 +17,10 @@ export interface ICart {
 }
 
 const page = async () => {
+  const isCookies = await checkCookie()
+  if(isCookies){
   const data: ICart[] = await GetCart() || []
+  if(data.length > 0){
   const price = data.reduce((acc, product) => acc + product.product_data.price*product.quantity, 0)
     return (
       <div className='lg:mx-20 md:mx-10 grid lg:grid-cols-3  md:grid-cols-2 grid-cols-1 md:space-y-6 space-y-9 space-x-5 md:space-x-10 '>
@@ -59,6 +63,36 @@ const page = async () => {
         </div>
       </div>
     )
+  } else {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-[calc(100vh-91px)] gap-2 px-4">
+        <h1 className="mb-6 text-4xl font-bold">YOUR CART IS EMPTY</h1>
+        <p className="mb-4 text-lg">When you have added something to your cart, it will appear here. Want to get started?</p>
+        <Link
+          className="flex font-medium	 items-center bg-[#0C0C0C] justify-center text-sm min-w-[160px] max-w-[160px] h-[40px] px-[10px] rounded-md border border-solid border-[#2E2E2E] transition-all hover:bg-[#1F1F1F] hover:border-[#454545]"
+          href="/"
+        >
+          Start
+        </Link>
+      </div>
+    )
+  }
+} else {
+  return (
+    <div className="flex flex-col items-center justify-center w-full h-[calc(100vh-91px)] gap-2 px-4">
+      <h1 className="mb-6 text-4xl font-bold">YOUR CART IS EMPTY</h1>
+      <p className="mb-4 text-lg">
+        Not registered? You must be in order to save your products in the shopping cart.
+      </p>
+      <Link
+        className="flex font-medium	 items-center bg-[#0C0C0C] justify-center text-sm min-w-[160px] max-w-[160px] h-[40px] px-[10px] rounded-md border border-solid border-[#2E2E2E] transition-all hover:bg-[#1F1F1F] hover:border-[#454545]"
+        href="/login"
+      >
+        Login
+      </Link>
+    </div>
+  );
+}
 }
 
 export default page

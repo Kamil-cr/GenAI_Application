@@ -7,6 +7,17 @@ export const myDeleteCookie = () => {
     console.log("cookie deleted");
 }
 
+export const myGetCookie = () => {
+    const access_token = cookies().get("access_token")?.value
+    const refresh_token = cookies().get("refresh_token")?.value
+    return {access_token, refresh_token}
+}
+
+export const checkCookie = () => {
+    const cookie = cookies().get("access_token") || cookies().get("refresh_token")
+    return cookie
+}
+
 export const mySetCookie = (access_token: string, refresh_token: string) => {
     cookies().set({
         name: 'access_token',
