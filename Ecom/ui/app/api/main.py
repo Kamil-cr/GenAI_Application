@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from datetime import timedelta
 from app.api.utils.services import create_order, create_product_cart, delete_cart_product, get_current_user, get_user_by_username, update_cart, user_cart, verify_password, create_access_token, signup_user
-from app.api.utils.models import Cart, CartCreate, OrderCreate, Product, TokenData, Token, Order, User, UserCreate, Userlogin
+from app.api.utils.models import Cart, CartCreate, OrderCreate, OrderDelete, OrderUpdate, Product, TokenData, Token, Order, User, UserCreate, Userlogin
 from app.api.utils.db import lifespan, db_session
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.utils.openai import generate_message
@@ -125,3 +125,12 @@ def openai(prompt: str) -> dict:
     messages = generate_message(prompt)
     return {"message": messages}
 
+@app.delete("/api/order", response_model=dict[str, str])
+def cancel_order(order: OrderDelete, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> dict[str, str]:
+    cancel_order(session, order, user)
+    return {"message": "Order cancelled"}
+
+@app.patch("/api/order", response_model=Order)
+def update_order(order: OrderUpdate, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> Order:
+    updated_order = update_order(session, order, user)
+    return updated_order

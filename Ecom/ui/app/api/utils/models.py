@@ -111,3 +111,33 @@ class OrderUpdate(OrderBase):
 
 class OrderDelete(SQLModel):
     id: int
+    order_status: OrderStatus
+
+class RequiredAction(str, enum.Enum):
+    completed = "completed"
+    pending = "pending"
+    failed = "failed"
+    requires_action = "requires_action"
+    cancelled = "cancelled"
+    expired = "expired"
+
+class RunStatus(SQLModel):
+    run_id: str
+    thread_id: str
+    status: str
+    required_action: Optional[RequiredAction]
+
+class ThreadMessage(SQLModel):
+    content: str
+    role: str
+    hidden: bool
+    id: str
+    created_at: int
+
+
+class Thread(SQLModel):
+    messages: List[ThreadMessage]
+
+
+class CreateMessage(SQLModel):
+    content: str

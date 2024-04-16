@@ -1,15 +1,13 @@
 from fastapi.testclient import TestClient
-from api.main import app
-from utils.db import db_session
-from utils.models import User
-from utils import settings
+from app.api.main import app
+from app.api.utils.db import db_session
+from app.api.utils import settings
 from sqlmodel import create_engine, Session, SQLModel
 
 def test_get_root():
     client = TestClient(app)
-    response = client.get("/")
+    response = client.get("/api/products")
     assert response.status_code == 200
-    assert response.json() == {"message": "Hello World"}
 
 # def test_create_user():
 #     client = TestClient(app)
