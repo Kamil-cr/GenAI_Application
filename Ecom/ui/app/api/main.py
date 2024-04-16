@@ -61,7 +61,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     return {"access_token": access_token, "refresh_token": refresh_token, "expires_in": access_token_expires+refresh_token_expires, "token_type": "bearer"}
 
 @app.post("/api/signup", response_model=User)
-async def signup(db: Annotated[Session, Depends(db_session)], user: UserCreate = Body()):
+async def signup(db: Annotated[Session, Depends(db_session)], user: UserCreate ):
     try:
         return signup_user(user, db)
     except Exception as e:

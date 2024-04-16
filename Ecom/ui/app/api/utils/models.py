@@ -6,11 +6,11 @@ from datetime import datetime, timedelta
 
 class ProductBase(SQLModel):
     name: str = Field(nullable=False)
-    description: str = Field(nullable=False)
-    price: float = Field(nullable=False)
-    slug: str = Field(nullable=False)
-    image1: str = Field(nullable=False)
-    image2: str = Field(nullable=False)
+    description: str 
+    price: float 
+    slug: str 
+    image1: str 
+    image2: str 
 
 # Define the SQLModel
 class Product(ProductBase, table=True):
