@@ -4,6 +4,8 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { registerUser } from "@/actions/registerUser";
 import { useRouter } from "next/navigation";
+import { ToastAction } from "./ui/toast";
+import { useToast } from "./ui/use-toast";
 
 const Signup = () => {
     const labelStyles = "w-full text-sm";
@@ -13,11 +15,15 @@ const Signup = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
+    const {toast} = useToast()
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         registerUser(username, email, password)
         router.push("/login")
+        toast({
+            description: "User Registered Successfully",
+        })  
     };
 
     return (

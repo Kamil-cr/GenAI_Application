@@ -1,11 +1,13 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { FormEvent, use, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginUser } from "@/actions/Login";
+import { useToast } from "./ui/use-toast";
 
 const Signin = () => {
+    const {toast} = useToast()
     const router = useRouter();
     const labelStyles = "w-full text-sm";
     const [error, setError] = useState("");
@@ -24,7 +26,10 @@ const Signin = () => {
             <form
                 className="p-6 xs:p-10 w-96 flex flex-col justify-between items-center gap-2.5	
                 border border-solid border-[#2E2E2E] bg-[#0A0A0A] rounded-md"
-                onSubmit={(e: FormEvent) => {e.preventDefault(); login()}}
+                onSubmit={(e: FormEvent) => {
+                    e.preventDefault(); 
+                    login();
+                }}
             >
                 {error && <div className="text-[#FF6166] flex items-center justify-center gap-2">
                     <svg

@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/theme-provider"
 import { Footer } from "@/components/Footer";
 import ChatBox from "@/components/ChatBox";
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,6 +30,7 @@ export default function RootLayout({
         >
           <Navbar />
           {children}
+          <Toaster />
           <ChatBox />
           <Footer />
         </ThemeProvider>

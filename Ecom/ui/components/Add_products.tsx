@@ -1,20 +1,28 @@
 "use client"
 import { addToCart } from "@/actions/add_to_cart"
+import { useToast } from "@/components/ui/use-toast"
 import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
 import { useRouter, useSearchParams } from "next/navigation"
 import { IProducts } from "./Products"
+import { ToastAction } from "./ui/toast"
 
 const Product_to_Cart = ({product_data}: {product_data: IProducts}) => {
+    const {toast} = useToast()
     const router = useRouter()
     const searchQuery = useSearchParams()
     const defaultSearchQuery = searchQuery?.get("size") ?? ""
     const quantity = 1
 
     const submitdata = () => {
-        addToCart(defaultSearchQuery, product_data, quantity)
+        addToCart(defaultSearchQuery, product_data, quantity);
+        toast({
+            title: "Product Added to Cart",
+            description: "Visit Cart to checkout",
+            action: <ToastAction onClick={()=> router.push("/cart")} altText="View Cart">View Cart</ToastAction>,
+          })
     }
     
   return (
