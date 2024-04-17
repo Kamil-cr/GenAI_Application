@@ -107,10 +107,11 @@ class OrderCreate(OrderBase):
     pass
 
 class OrderUpdate(OrderBase):
-    pass
+    order_id: int
+    order_status: OrderStatus
 
 class OrderDelete(SQLModel):
-    id: int
+    order_id: int
     order_status: OrderStatus
 
 class RequiredAction(str, enum.Enum):

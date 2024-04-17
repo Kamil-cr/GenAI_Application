@@ -224,7 +224,7 @@ def update_order(db: Session, order: OrderUpdate, user: User) -> Order:
     user = db.exec(select(User).where(User.username == user.username)).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    order = db.exec(select(Order).where(Order.user_id == user.id)).first()
+    order = db.exec(select(Order).where(Order.user_id == user.id, Order.id == order.order_id)).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     order.payment_method = order.payment_method
@@ -234,6 +234,7 @@ def update_order(db: Session, order: OrderUpdate, user: User) -> Order:
     order.city = order.city
     order.state = order.state
     order.contact_number = order.contact_number
+    order.order_status = order.order_status
     db.add(order)
     db.commit()
     db.refresh(order)
@@ -243,7 +244,7 @@ def cancel_order(db: Session, order: OrderDelete, user: User) -> Order:
     user = db.exec(select(User).where(User.username == user.username)).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    order = db.exec(select(Order).where(Order.id == order.id, Order.user_id == user.id)).first()
+    order = db.exec(select(Order).where(Order.id == order.order_id, Order.user_id == user.id)).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     order.order_status = "cancelled"

@@ -120,10 +120,10 @@ def get_orders(user: Annotated[User, Depends(get_current_user)],session: Annotat
     orders = session.exec(select(Order).where(Order.user_id == user.id)).all()
     return orders
 
-@app.post("/api/openai")
-def openai(prompt: str) -> dict:
-    messages = generate_message(prompt)
-    return {"message": messages}
+# @app.post("/api/openai")
+# def openai(prompt: str) -> dict:
+#     messages = generate_message(prompt)
+#     return {"message": messages}
 
 @app.delete("/api/order", response_model=dict[str, str])
 def cancel_order(order: OrderDelete, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> dict[str, str]:
