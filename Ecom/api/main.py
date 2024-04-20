@@ -9,12 +9,11 @@ from datetime import timedelta
 from app.api.utils.services import create_order, create_product_cart, delete_cart_product, get_current_user, get_user_by_username, update_cart, user_cart, verify_password, create_access_token, signup_user
 from app.api.utils.models import Cart, CartCreate, OrderCreate, OrderDelete, OrderUpdate, Product, TokenData, Token, Order, User, UserCreate, Userlogin
 from app.api.utils.db import lifespan, db_session
-from fastapi.middleware.cors import CORSMiddleware
+from app.api.utils.openai import create_thread, generate_message, get_response, user_chat
 
 SECRET_KEY = str(SECRET_KEY)
 ALGORITHM = ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = ACCESS_TOKEN_EXPIRE_MINUTES
-REFRESH_TOKEN_EXPIRE_MINUTES = REFRESH_TOKEN_EXPIRE_MINUTES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
@@ -22,18 +21,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI(title="E-commerce API", version="0.1.0", lifespan=lifespan)
 
-origins = [
-    "http://localhost:3000",  # Add your Next.js app URL here
-    "http://localhost:3001",  # Add your FastAPI app URL here
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 @app.post("/api/login", response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(db_session)]) -> Token:
@@ -120,6 +107,11 @@ def get_orders(user: Annotated[User, Depends(get_current_user)],session: Annotat
     orders = session.exec(select(Order).where(Order.user_id == user.id)).all()
     return orders
 
+# @app.post("/api/openai")
+# def openai(prompt: str) -> dict:
+#     messages = generate_message(prompt)
+#     return {"message": messages}
+
 @app.delete("/api/order", response_model=dict[str, str])
 def cancel_order(order: OrderDelete, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> dict[str, str]:
     cancel_order(session, order, user)
@@ -129,3 +121,23 @@ def cancel_order(order: OrderDelete, session: Annotated[Session, Depends(db_sess
 def update_order(order: OrderUpdate, session: Annotated[Session, Depends(db_session)], user: Annotated[User, Depends(get_current_user)]) -> Order:
     updated_order = update_order(session, order, user)
     return updated_order
+
+@app.post("/api/openai/start")
+def start_a_conversation():
+    thread = create_thread()
+    return thread
+
+# @app.post("/api/openai/messages")
+# async def message(prompt: str, thread_id: str) -> dict:
+#     response = await generate_message(prompt, thread_id)
+#     return {"message": response}
+
+@app.post("/api/messages")
+async def message(prompt: str, thread_id: str):
+    response = await user_chat(thread_id, prompt)
+    return response
+
+@app.get("/api/openai/getmessages")
+def messages(thread_id: str):
+    messages = get_response(thread_id)
+    return {"messages": messages}

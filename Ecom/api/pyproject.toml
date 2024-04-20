@@ -21,7 +21,6 @@ cryptography = "^42.0.5"
 openai = "^1.16.2"
 pytest = "^8.1.1"
 responses = "^0.25.0"
-python-multipart = "^0.0.9"
 
 
 [build-system]
